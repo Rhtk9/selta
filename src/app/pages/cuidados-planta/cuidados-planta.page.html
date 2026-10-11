@@ -1,0 +1,230 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/minhas-plantas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Cuidar da Planta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando dados da planta...</p>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div *ngIf="!loading && planta && fase" class="cuidados-page-layout">
+
+    <!-- Cabeçalho da planta -->
+    <div
+      class="planta-header"
+      [class.cuidado-animado]="cuidadoAnimado"
+      [style.backgroundImage]="'linear-gradient(180deg, rgba(240,250,243,0.2), rgba(216,243,220,0.18)), ' + getFundoUrl()"
+      [style.backgroundPosition]="getFundoPosicao()">
+      <div
+        class="planta-visual-wrapper"
+        [class.ambiente-interno]="ambienteEspecie === 'Interno'"
+        [class.ambiente-externo]="ambienteEspecie === 'Externo'"
+        [class.ambiente-temperado]="ambienteEspecie === 'Temperado'"
+        [class.ambiente-aquatico]="ambienteEspecie === 'Aquático' || ambienteEspecie === 'Aquatico'">
+        <app-planta-visual [estagioVisual]="getEstagioVisual()" [nivelSaude]="getNivelSaude(planta)"
+          [nivelAgua]="getNivelAgua(planta)" [nivelFelicidade]="getNivelFelicidade(planta)" [tamanho]="280">
+        </app-planta-visual>
+      </div>
+      <div class="planta-info">
+        <h2>{{ planta.apelido }}</h2>
+        <p class="especie">{{ planta.especieNomePopular || 'Espécie' }}</p>
+        <div class="fase-badge">{{ fase.nome || 'Fase ' + planta.faseId }}</div>
+      </div>
+      <div class="level-badge" [class.level-up]="evolucaoAnimada">
+        <span>FASE</span>
+        <strong>{{ fase.ordem || planta.faseId }}</strong>
+      </div>
+    </div>
+
+    <div class="care-intro">
+      <div>
+        <h1>Cuidados</h1>
+        <p>Regue, adube e posicione sua planta.</p>
+      </div>
+      <div class="sun-mark"><ion-icon name="sunny-outline"></ion-icon></div>
+    </div>
+
+    <!-- Status da planta -->
+    <div class="status-section" [class.cuidado-animado]="cuidadoAnimado">
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="alert-circle-outline" [style.color]="getCorEstresseStatus()"></ion-icon>
+          <span>Estresse</span>
+          <span class="status-value">{{ planta.estresse ?? 0 }}%</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="planta.estresse ?? 0"
+            [style.background]="getCorEstresseStatus()"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="shield-checkmark-outline" [style.color]="getCorSaudeStatus()"></ion-icon>
+          <span>Saúde</span>
+          <span class="status-value">{{ planta.saude }}%</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="planta.saude" [style.background]="getCorSaudeStatus()"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="sparkles-outline" style="color: #2D6A4F;"></ion-icon>
+          <span>XP</span>
+          <span class="status-value">{{ getXpTexto() }}</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="getProgressoXP()"
+            style="background: linear-gradient(90deg, #2D6A4F, #52B788);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicador de saúde geral -->
+    <div class="saude-indicador" [style.color]="getSaudeColor(planta)" [style.borderColor]="getSaudeColor(planta)">
+      <ion-icon size="large" [name]="getStatusIcon(planta)"></ion-icon>
+      <span>Saúde: {{ getSaudeLabel(planta) }}</span>
+    </div>
+
+    <!-- Controles de cuidado -->
+    <div class="cuidados-section">
+      <div class="section-heading">
+        <div>
+          <h3>Cuidados de hoje</h3>
+        </div>
+        <span class="quality-pill">
+          {{ planta.posicaoAtual === 'SOMBRA' ? 'Na sombra' : planta.posicaoAtual === 'SOL_PLENO' ? 'Sol pleno' :
+          'Meia-sombra' }}
+        </span>
+      </div>
+      <div class="status-mini">
+        <div class="status-mini-icon"><ion-icon name="water-outline" style="color: #4A9FCA;"></ion-icon></div>
+        <div class="status-mini-body">
+          <div class="status-mini-header">
+            <span>Água no solo</span>
+            <strong [style.color]="getCorNivel(getNivelAgua(planta))">{{ getLabelAgua(planta) }}</strong>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" [style.width.%]="planta.aguaAtual ?? 0" style="background: #4A9FCA;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="status-mini">
+        <div class="status-mini-icon"><ion-icon name="leaf-outline" style="color: #2D6A4F;"></ion-icon></div>
+        <div class="status-mini-body">
+          <div class="status-mini-header">
+            <span>Nutrientes</span>
+            <strong [style.color]="getCorNivel(getNivelNutrientes(planta))">{{ getLabelNutrientes(planta) }}</strong>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" [style.width.%]="planta.nutrientesAtual ?? 0" style="background: #2D6A4F;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="status-mini">
+        <div class="status-mini-icon"><ion-icon name="sunny-outline" style="color: #F5A623;"></ion-icon></div>
+        <div class="status-mini-body">
+          <div class="status-mini-header">
+            <span>Luz acumulada</span>
+            <strong [style.color]="getCorNivel(getNivelLuz(planta))">{{ getLabelLuz(planta) }}</strong>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-bar-fill" [style.width.%]="planta.luzAtual ?? 0" style="background: #F5A623;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="acoes-grid">
+        <ion-button expand="block" class="btn-acao btn-regar" [class.indisponivel]="!podeRegar()" (click)="regar()" [disabled]="cuidando || salvandoEvolucao || !podeRegar()">
+          <ion-icon name="water-outline" slot="start"></ion-icon>
+          <span>{{ podeRegar() ? 'Regar' : 'Regada recentemente' }}</span>
+        </ion-button>
+        <ion-button expand="block" class="btn-acao btn-adubar" [class.indisponivel]="!podeAdubar()" (click)="adubar()" [disabled]="cuidando || salvandoEvolucao || !podeAdubar()">
+          <ion-icon name="leaf-outline" slot="start"></ion-icon>
+          <span>{{ podeAdubar() ? 'Adubar' : 'Adubada recentemente' }}</span>
+        </ion-button>
+      </div>
+      <div class="section-subheading"><span>Posição da planta</span></div>
+      <div class="posicoes-grid">
+        <ion-button fill="outline" size="small" [class.ativa]="planta.posicaoAtual === 'SOMBRA'"
+          (click)="moverPara('SOMBRA')" [disabled]="cuidando">
+          <ion-icon name="moon-outline"></ion-icon>Sombra
+        </ion-button>
+        <ion-button fill="outline" size="small" [class.ativa]="planta.posicaoAtual === 'MEIA_SOMBRA'"
+          (click)="moverPara('MEIA_SOMBRA')" [disabled]="cuidando">
+          <ion-icon name="partly-sunny-outline"></ion-icon>Meia-sombra
+        </ion-button>
+        <ion-button fill="outline" size="small" [class.ativa]="planta.posicaoAtual === 'SOL_PLENO'"
+          (click)="moverPara('SOL_PLENO')" [disabled]="cuidando">
+          <ion-icon name="sunny-outline"></ion-icon>Sol pleno
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Feedback após cuidado -->
+    <div *ngIf="feedback" class="feedback-section" [class.evoluiu]="feedback.evoluiu"
+      [class.feedback-animado]="cuidadoAnimado">
+      <div class="feedback-icon"><ion-icon
+          [name]="feedback.evoluiu ? 'sparkles-outline' : 'checkmark-outline'"></ion-icon></div>
+      <p class="feedback-mensagem">{{ feedback.mensagem }}</p>
+      <div class="feedback-xp">
+        <span *ngIf="feedback.xpPlanta > 0">🌱 Planta: +{{ feedback.xpPlanta }} XP</span>
+        <span *ngIf="feedback.xpUsuario > 0">👤 Você: +{{ feedback.xpUsuario }} XP</span>
+      </div>
+    </div>
+
+    <div *ngIf="evolucaoAnimada" class="evolucao-overlay" role="status">
+      <div class="evolucao-rays"></div>
+      <div class="evolucao-content">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <span>Nova fase</span>
+        <strong>{{ faseAnteriorNome }}</strong>
+        <ion-icon name="arrow-forward-outline" class="evolucao-arrow"></ion-icon>
+        <strong>{{ faseNovaNome }}</strong>
+      </div>
+    </div>
+
+    <!-- Histórico de cuidados -->
+    <div class="historico-section">
+      <h4>📋 Últimos cuidados</h4>
+      <div *ngIf="carregandoHistorico" class="loading-small">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+      <div *ngIf="!carregandoHistorico && historico.length === 0" class="empty-historico">
+        <div class="empty-historico-icon"><ion-icon name="leaf-outline"></ion-icon></div>
+        <h5>Nenhum cuidado ainda</h5>
+        <p>Comece regando ou adubando para registrar seu primeiro cuidado.</p>
+      </div>
+      <div *ngFor="let reg of historico" class="historico-item">
+        <div class="historico-data">
+          <span class="data">{{ getTempoRelativo(reg) }}</span>
+          <span class="xp">+{{ getXpRegistro(reg) }} XP</span>
+        </div>
+        <div class="historico-valores">
+          <div class="historico-acao" *ngIf="getTipoAcaoRegistro(reg)">
+            <span class="acao-emoji">{{ getIconeAcao(getTipoAcaoRegistro(reg)) }}</span>
+            <span class="acao-label" *ngIf="getTipoAcaoRegistro(reg) !== 'MOVER'">{{ getLabelAcao(getTipoAcaoRegistro(reg)) }}</span>
+            <span class="acao-label" *ngIf="getTipoAcaoRegistro(reg) === 'MOVER' && reg.valorAnterior != null && reg.valorNovo != null">
+              {{ getDescricaoMovimento(reg) }}
+            </span>
+          </div>
+          <div class="historico-mudanca" *ngIf="getTipoAcaoRegistro(reg) !== 'MOVER' && reg.valorAnterior != null && reg.valorNovo != null">
+            <span class="mudanca-de">{{ reg.valorAnterior }}%</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+            <span class="mudanca-para">{{ reg.valorNovo }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ion-content>

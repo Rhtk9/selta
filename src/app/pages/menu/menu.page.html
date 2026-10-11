@@ -1,0 +1,75 @@
+<!-- src/app/pages/menu/menu.page.html -->
+<div class="sidebar">
+
+    <!-- LOGO -->
+    <div class="logo">
+      <div class="logo-icon">
+        <img src="assets/images/logo-planta.PNG" alt="Grow" />
+      </div>
+      <div>
+        <h1>Grow</h1>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar" [style.background-image]="imagemUsuario ? 'url(' + imagemUsuario + ')' : null">
+        <span *ngIf="!imagemUsuario">{{ nomeUsuario.charAt(0).toUpperCase() }}</span>
+      </div>
+      <div class="profile-info">
+        <h2>{{ nomeUsuario }}</h2>
+      </div>
+    </div>
+
+    <!-- MENU PRINCIPAL -->
+    <div class="menu-section">
+      <ion-item lines="none" routerLink="/home">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Início</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- ESPÉCIES & PLANTAS -->
+    <div class="menu-section">
+      <ion-item lines="none" routerLink="/minhas-plantas">
+        <ion-icon name="leaf-outline" slot="start"></ion-icon>
+        <ion-label>Minhas Plantas</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/explorar-especies">
+        <ion-icon name="flower-outline" slot="start"></ion-icon>
+        <ion-label>Explorar Plantas</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- PAINÉIS -->
+    <div class="menu-section">
+      <ion-item lines="none" routerLink="/painel-aluno">
+        <ion-icon name="grid-outline" slot="start"></ion-icon>
+        <ion-label>Painel Aluno</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/painel-professor">
+        <ion-icon name="school-outline" slot="start"></ion-icon>
+        <ion-label>Painel Professor</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/painel-responsavel">
+        <ion-icon name="people-circle-outline" slot="start"></ion-icon>
+        <ion-label>Painel Responsável</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- OUTROS -->
+    <div class="menu-section">
+      <ion-item lines="none" routerLink="/mais-opcoes">
+        <ion-icon name="ellipsis-horizontal-outline" slot="start"></ion-icon>
+        <ion-label>Mais Opções</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="logout">
+      <ion-item button (click)="logout()" lines="none">
+        <ion-icon name="log-out-outline" color="danger" slot="start"></ion-icon>
+        <ion-label color="danger">Sair</ion-label>
+      </ion-item>
+    </div>
+
+  </div>

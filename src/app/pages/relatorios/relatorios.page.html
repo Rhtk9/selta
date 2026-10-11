@@ -1,0 +1,159 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button color="dark"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Relatórios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="page-header">
+    <h1 class="page-title">Relatórios</h1>
+    <p class="page-subtitle">Seu desempenho e conquistas</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando relatórios...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <!-- ============ STATS TOPO ============ -->
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats" class="stat-card">
+        <div class="stat-icon" [ngClass]="stat.cor">
+          <ion-icon [name]="stat.icone"></ion-icon>
+        </div>
+        <div class="stat-value">{{ stat.valor }}</div>
+        <div class="stat-titulo">{{ stat.titulo }}</div>
+        <div class="stat-sub">{{ stat.sub }}</div>
+      </div>
+    </div>
+
+    <!-- ============ XP POR SEMANA ============ -->
+    <div class="grafico-card">
+      <div class="grafico-header">
+        <h3>XP por semana</h3>
+        <span class="variacao" [class.positivo]="variacaoXpSemanal >= 0">
+          <ion-icon [name]="variacaoXpSemanal >= 0 ? 'trending-up-outline' : 'trending-down-outline'"></ion-icon>
+          {{ variacaoXpSemanal >= 0 ? '+' : '' }}{{ variacaoXpSemanal }}%
+        </span>
+      </div>
+
+      <div class="grafico-barras">
+        <div class="barra-wrapper" *ngFor="let s of xpPorSemana">
+          <div class="barra-valor">{{ s.valor }}</div>
+          <div class="barra-coluna">
+            <div class="barra-fill" [style.height.%]="getAlturaBarra(s.valor)"></div>
+          </div>
+          <div class="barra-label">{{ s.label }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AULAS POR TURMA ============ -->
+    <div class="secao-card">
+      <h3 class="secao-titulo">Aulas por turma</h3>
+
+      <div *ngIf="aulasPorTurma.length === 0" class="vazio-inline">
+        <ion-icon name="school-outline"></ion-icon>
+        <p>Você ainda não está em nenhuma turma.</p>
+      </div>
+
+      <div class="temas-lista" *ngIf="aulasPorTurma.length > 0">
+        <div *ngFor="let turma of aulasPorTurma" class="tema-item">
+          <div class="tema-header">
+            <span class="tema-nome">{{ turma.nome }}</span>
+            <span class="tema-percentual" [style.color]="getCorPercentual(getPercentualConclusao(turma))">
+              {{ turma.concluidas }}/{{ turma.total }}
+            </span>
+          </div>
+          <div class="tema-barra">
+            <div class="tema-barra-fill"
+              [style.width.%]="getPercentualConclusao(turma)"
+              [style.background]="getCorPercentual(getPercentualConclusao(turma))">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ QUALIDADE DO CUIDADO ============ -->
+    <div class="secao-card">
+      <h3 class="secao-titulo">
+        <ion-icon name="leaf-outline"></ion-icon>
+        Qualidade do cuidado
+      </h3>
+
+      <div *ngIf="cuidadosPorPlanta.length === 0" class="vazio-inline">
+        <ion-icon name="leaf-outline"></ion-icon>
+        <p>Registre cuidados para ver sua qualidade média.</p>
+      </div>
+
+      <div class="temas-lista" *ngIf="cuidadosPorPlanta.length > 0">
+        <div *ngFor="let c of cuidadosPorPlanta" class="tema-item">
+          <div class="tema-header">
+            <span class="tema-nome">{{ c.apelido }}</span>
+            <span class="tema-percentual" [style.color]="getCorPercentual(c.mediaQualidade)">
+              {{ c.mediaQualidade }}%
+            </span>
+          </div>
+          <div class="tema-barra">
+            <div class="tema-barra-fill"
+              [style.width.%]="c.mediaQualidade"
+              [style.background]="getCorPercentual(c.mediaQualidade)">
+            </div>
+          </div>
+          <small class="tema-sub">{{ c.totalRegistros }} cuidado{{ c.totalRegistros > 1 ? 's' : '' }} registrado{{ c.totalRegistros > 1 ? 's' : '' }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BADGES ============ -->
+    <div class="secao-card">
+      <h3 class="secao-titulo">Badges & Conquistas</h3>
+
+      <div class="badges-grid">
+        <div *ngFor="let badge of badges" class="badge-card" [class.bloqueada]="!badge.desbloqueada">
+          <div class="badge-icone">{{ badge.icone }}</div>
+          <div class="badge-nome">{{ badge.nome }}</div>
+          <div class="badge-desc">{{ badge.descricao }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PLANTAS ADOTADAS ============ -->
+    <div class="secao-card plantas-card" *ngIf="plantas.length > 0">
+      <h3 class="secao-titulo">
+        <ion-icon name="leaf-outline"></ion-icon>
+        Plantas adotadas
+      </h3>
+
+      <div class="plantas-lista">
+        <div *ngFor="let planta of plantas" class="planta-item">
+          <div class="planta-emoji">🌱</div>
+          <div class="planta-info">
+            <div class="planta-top">
+              <strong>{{ planta.apelido }}</strong>
+              <span class="planta-pct">{{ progressoPlantas[planta.id] || 0 }}%</span>
+            </div>
+            <div class="planta-barra">
+              <div class="planta-barra-fill" [style.width.%]="progressoPlantas[planta.id] || 0"></div>
+            </div>
+            <small>{{ planta.faseNome || 'Fase ' + planta.faseId }} • Nível {{ planta.nivel }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="plantas.length === 0" class="secao-card vazio">
+      <ion-icon name="leaf-outline"></ion-icon>
+      <p>Você ainda não adotou nenhuma planta.</p>
+    </div>
+
+  </div>
+
+</ion-content>

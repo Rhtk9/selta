@@ -1,0 +1,235 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button color="dark"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Turmas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Header título -->
+  <div class="page-header">
+    <div class="page-header-icon">
+      <ion-icon name="school-outline"></ion-icon>
+    </div>
+    <div>
+      <h1 class="page-title">Minhas Turmas</h1>
+      <p class="page-subtitle">Gerencie e participe de turmas</p>
+    </div>
+  </div>
+
+  <!-- Info card -->
+  <div class="info-card">
+    <div class="info-icon">
+      <ion-icon name="school-outline"></ion-icon>
+    </div>
+    <div>
+      <h4>Você é professor em uma turma</h4>
+      <p>Criar turma → professor • Entrar com código → aluno</p>
+    </div>
+  </div>
+
+  <!-- Ações principais -->
+  <div class="role-cards">
+    <div class="role-card professor" (click)="abrirCriarTurma()">
+      <ion-icon name="add-outline"></ion-icon>
+      <div>
+        <h3>Criar turma</h3>
+        <p>Vira professor</p>
+      </div>
+    </div>
+    <div class="role-card aluno" (click)="abrirEntrarTurma()">
+      <ion-icon name="log-in-outline"></ion-icon>
+      <div>
+        <h3>Entrar em turma</h3>
+        <p>Vira aluno</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Busca -->
+  <ion-searchbar
+    [(ngModel)]="termoBusca"
+    (ionInput)="onBuscar($event)"
+    placeholder="Buscar turmas..."
+    mode="ios"
+    class="custom-search"
+  ></ion-searchbar>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando suas turmas...</p>
+  </div>
+
+  <!-- Lista -->
+  <div *ngIf="!isLoading">
+
+    <div class="lista-header">
+      <h2>Turmas ({{ turmasFiltradas.length }})</h2>
+    </div>
+
+    <div *ngIf="turmasFiltradas.length === 0" class="empty-state">
+      <ion-icon name="school-outline"></ion-icon>
+      <h3>Nenhuma turma encontrada</h3>
+      <p *ngIf="termoBusca">Nenhuma turma corresponde à sua busca</p>
+      <p *ngIf="!termoBusca">Crie uma turma ou entre em uma com código</p>
+    </div>
+
+    <div class="turmas-lista">
+      <div *ngFor="let turma of turmasFiltradas; let i = index" class="turma-card" (click)="verAtividades(turma)">
+
+        <!-- Topo: badge + seta -->
+        <div class="card-top">
+          <span class="badge-disciplina" [style.background]="getCorTurma(i) + '22'" [style.color]="getCorTurma(i)">
+            {{ turma.disciplinaNome || turma.nivelEnsino || 'Turma' }}
+          </span>
+
+          <span *ngIf="isProfessorDaTurma(turma.id!)" class="badge-papel prof">Professor</span>
+          <span *ngIf="!isProfessorDaTurma(turma.id!) && isVinculado(turma.id!)" class="badge-papel aluno">Vinculado</span>
+
+          <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+        </div>
+
+        <!-- Nome -->
+        <h3 class="turma-nome">{{ turma.nome }}</h3>
+        <p class="turma-prof">
+          <ion-icon name="person-outline"></ion-icon>
+          Prof. {{ getNomeProfessor(turma.id!) }}
+        </p>
+
+        <!-- Progresso -->
+        <div class="progresso">
+          <div class="progresso-top">
+            <span>Progresso do curso</span>
+            <span class="pct">{{ getProgresso(turma) }}%</span>
+          </div>
+          <div class="barra">
+            <div class="barra-fill" [style.width.%]="getProgresso(turma)" [style.background]="getCorTurma(i)"></div>
+          </div>
+        </div>
+
+        <!-- Próxima atividade -->
+        <div *ngIf="getNextActivity(turma)" class="proxima">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Próxima: {{ getNextActivity(turma) }}</span>
+        </div>
+
+        <!-- Footer: tags + ações -->
+        <div class="card-footer" (click)="$event.stopPropagation()">
+          <div class="tags">
+            <span class="tag" *ngIf="turma.codigo">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              {{ turma.codigo }}
+            </span>
+            <span class="tag" *ngIf="turma.nivelEnsino">
+              <ion-icon name="school-outline"></ion-icon>
+              {{ turma.nivelEnsino }}
+            </span>
+          </div>
+
+          <div class="acoes">
+
+            <!-- ⭐ FAVORITAR -->
+            <button
+              class="acao-btn favorito"
+              [class.ativo]="isFavorita(turma.id!)"
+              (click)="favoritarTurma(turma)"
+              [attr.aria-label]="isFavorita(turma.id!) ? 'Desfavoritar' : 'Favoritar'">
+              <ion-icon
+                [name]="isFavorita(turma.id!) ? 'star' : 'star-outline'">
+              </ion-icon>
+            </button>
+
+  
+            <!-- ➡️ ACESSAR -->
+            <button class="acao-btn ir" (click)="verAtividades(turma)">
+              Acessar
+              <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<!-- MODAL: Criar Turma -->
+<ion-modal [isOpen]="modalCriarTurma" (ionModalDidDismiss)="fecharModalCriarTurma()">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="custom-toolbar">
+        <ion-title>Nova turma</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="fecharModalCriarTurma()" color="dark">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+
+      <div class="modal-header-info">
+        <div class="modal-header-icon">
+          <ion-icon name="school-outline"></ion-icon>
+        </div>
+        <div>
+          <h3>Criar nova turma</h3>
+          <p>Você será o professor desta turma</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nome da turma *</label>
+        <ion-input
+          [(ngModel)]="novaTurma.nome"
+          placeholder="Ex: Biologia 9º Ano A"
+          mode="md"
+          fill="outline">
+        </ion-input>
+      </div>
+
+      <div class="form-group">
+        <label>Nível de ensino *</label>
+        <ion-select
+          [(ngModel)]="novaTurma.nivelEnsino"
+          placeholder="Selecione o nível"
+          interface="action-sheet"
+          mode="md"
+          fill="outline">
+          <ion-select-option value="Fundamental">Fundamental</ion-select-option>
+          <ion-select-option value="Médio">Médio</ion-select-option>
+          <ion-select-option value="Superior">Superior</ion-select-option>
+          <ion-select-option value="Técnico">Técnico</ion-select-option>
+          <ion-select-option value="Outro">Outro</ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="form-group">
+        <label>Descrição</label>
+        <ion-textarea
+          [(ngModel)]="novaTurma.descricao"
+          placeholder="Descreva a turma..."
+          rows="3"
+          mode="md"
+          fill="outline">
+        </ion-textarea>
+      </div>
+
+      <button class="btn-criar" (click)="confirmarCriarTurma()" [disabled]="isLoading">
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        <span *ngIf="!isLoading">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Criar turma
+        </span>
+      </button>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>

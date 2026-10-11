@@ -1,0 +1,193 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <ion-title>
+      <ion-icon name="school" class="header-icon"></ion-icon>
+      <span class="page-title">Painel do Professor</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="primary" class="badge-papel">Professor</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Loading inicial -->
+  <div class="estado-vazio" *ngIf="isLoadingTurmas">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <!-- Sem turmas -->
+  <div class="estado-vazio" *ngIf="!isLoadingTurmas && turmasProfessor.length === 0">
+    <ion-icon name="school-outline" class="icone-vazio"></ion-icon>
+    <h2>Você ainda não é professor de nenhuma turma</h2>
+    <p>Crie uma turma na aba "Turmas" para começar a acompanhar seus alunos por aqui.</p>
+  </div>
+
+  <div *ngIf="turmaSelecionada">
+
+    <!-- Seletor de turmas (se o professor tiver mais de uma) -->
+    <div class="chips-turmas" *ngIf="turmasProfessor.length > 1">
+      <ion-chip
+        *ngFor="let t of turmasProfessor"
+        [outline]="turmaSelecionada.turmaId !== t.turmaId"
+        [color]="turmaSelecionada.turmaId === t.turmaId ? 'primary' : 'medium'"
+        (click)="selecionarTurma(t)">
+        <ion-label>{{ t.turmaNome }}</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Card de cabeçalho da turma -->
+    <div class="card-header-turma">
+      <div class="tag-topo">
+        <ion-icon name="ribbon-outline"></ion-icon>
+        PAINEL DO PROFESSOR
+      </div>
+      <h2>{{ turmaSelecionada.disciplinaNome }} — {{ turmaSelecionada.turmaNome }}</h2>
+      <p>Prof. {{ turmaSelecionada.usuarioNome }}</p>
+
+      <div class="stats-turma">
+        <div>
+          <strong>{{ qtdAlunos }}</strong>
+          <span>Alunos</span>
+        </div>
+        <div>
+          <strong>{{ progressoMedio }}%</strong>
+          <span>Progresso médio</span>
+        </div>
+        <div>
+          <strong>{{ streakMedio }}d</strong>
+          <span>Streak médio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Abas -->
+    <ion-segment [(ngModel)]="abaAtiva" mode="ios" class="segmento-abas">
+      <ion-segment-button value="alunos">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Alunos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="atividades">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <ion-label>Atividades</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="relatorio">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <ion-label>Relatório</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- ABA ALUNOS -->
+    <div *ngIf="abaAtiva === 'alunos'">
+      <div class="estado-vazio" *ngIf="isLoadingAlunos">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="lista-alunos" *ngIf="!isLoadingAlunos">
+        <div class="card-aluno" *ngFor="let a of alunos">
+          <div class="linha-topo-aluno">
+            <div class="avatar-aluno">{{ getIniciais(a.usuario.nome) }}</div>
+            <div class="info-aluno">
+              <div class="nome-e-badge">
+                <strong>{{ a.usuario.nome }}</strong>
+                <ion-badge color="warning" *ngIf="a.atencao">Atenção</ion-badge>
+              </div>
+              <p>Planta: Fase {{ a.faseNivel }} • Streak {{ a.usuario.sequenciaDias || 0 }}d</p>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+          </div>
+
+          <div class="barras-aluno">
+            <div class="barra-item">
+              <div class="barra-legenda">
+                <span>Progresso</span>
+                <span>{{ a.progresso }}%</span>
+              </div>
+              <ion-progress-bar [value]="a.progresso / 100" [color]="corBarra(a.progresso)"></ion-progress-bar>
+            </div>
+            <div class="barra-item">
+              <div class="barra-legenda">
+                <span>Saúde da planta</span>
+                <span>{{ a.saude }}%</span>
+              </div>
+              <ion-progress-bar [value]="a.saude / 100" [color]="corBarra(a.saude)"></ion-progress-bar>
+            </div>
+          </div>
+
+          <p class="motivo-atencao" *ngIf="a.atencao">{{ a.motivoAtencao }}</p>
+        </div>
+
+        <p class="feed-vazio" *ngIf="alunos.length === 0">Nenhum aluno ativo nessa turma ainda.</p>
+      </div>
+    </div>
+
+    <!-- ABA ATIVIDADES -->
+    <div *ngIf="abaAtiva === 'atividades'">
+      <div class="estado-vazio" *ngIf="isLoadingAtividades">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="lista-atividades" *ngIf="!isLoadingAtividades">
+        <div class="card-atividade" *ngFor="let at of atividades">
+          <div class="icone-atividade" [class.vencida]="isAtividadeVencida(at.dataEntrega)">
+            <ion-icon name="document-text-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>{{ at.titulo }}</strong>
+            <p>Entrega: {{ at.dataEntrega | date:'dd/MM/yyyy' }} • {{ at.xp }} XP</p>
+          </div>
+        </div>
+        <p class="feed-vazio" *ngIf="atividades.length === 0">Nenhuma atividade cadastrada nessa turma ainda.</p>
+      </div>
+    </div>
+
+    <!-- ABA RELATÓRIO -->
+    <div *ngIf="abaAtiva === 'relatorio'">
+      <ion-grid class="grid-stats">
+        <ion-row>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat verde"><ion-icon name="trending-up-outline"></ion-icon></div>
+              <h3>{{ progressoMedio }}%</h3>
+              <p>Progresso médio</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat azul"><ion-icon name="flame-outline"></ion-icon></div>
+              <h3>{{ streakMedio }}d</h3>
+              <p>Streak médio</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat amarelo"><ion-icon name="warning-outline"></ion-icon></div>
+              <h3>{{ qtdAtencao }}</h3>
+              <p>Alunos em atenção</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat verde"><ion-icon name="clipboard-outline"></ion-icon></div>
+              <h3>{{ atividades.length }}</h3>
+              <p>Atividades da turma</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <h4 class="titulo-secao" *ngIf="qtdAtencao > 0">Alunos que precisam de atenção</h4>
+      <div class="lista-atencao">
+        <div class="item-atencao" *ngFor="let a of alunos" [hidden]="!a.atencao">
+          <div class="avatar-aluno pequeno">{{ getIniciais(a.usuario.nome) }}</div>
+          <div>
+            <strong>{{ a.usuario.nome }}</strong>
+            <p>{{ a.motivoAtencao }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

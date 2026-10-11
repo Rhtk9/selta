@@ -1,0 +1,291 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button color="dark"></ion-menu-button>
+      <ion-back-button *ngIf="turmaId" (click)="voltar()" text="Voltar" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Atividades</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge class="badge-papel" [color]="isProfessor ? 'primary' : 'success'">
+        {{ isProfessor ? 'Professor' : 'Aluno' }}
+      </ion-badge>
+      <ion-button
+        *ngIf="turmaId && isProfessor && temAcesso"
+        (click)="abrirCriarAtividade()"
+        fill="clear"
+        color="dark">
+        <ion-icon slot="icon-only" name="add-circle-outline" style="font-size:22px;"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="page-header">
+    <div class="page-header-icon">
+      <ion-icon name="clipboard-outline"></ion-icon>
+    </div>
+    <div>
+      <h1 class="page-title">Atividades</h1>
+      <p class="page-subtitle">Acompanhe suas tarefas e entregas</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando atividades...</p>
+  </div>
+
+  <div *ngIf="!isLoading && turmaId && !temAcesso" class="sem-acesso">
+    <div class="sem-acesso-icon">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+    </div>
+    <h2>Acesso restrito</h2>
+    <p>Você precisa estar vinculado a esta turma para ver as atividades.</p>
+    <button class="btn-voltar" (click)="voltar()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Voltar para Turmas
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && temAcesso">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-head">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>Total</span>
+        </div>
+        <div class="stat-value">{{ total }}</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-head">
+          <ion-icon name="checkmark-circle-outline" class="icone-verde"></ion-icon>
+          <span>Concluídas</span>
+        </div>
+        <div class="stat-value verde">{{ totalConcluidas }}</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-head">
+          <ion-icon name="time-outline" class="icone-azul"></ion-icon>
+          <span>Pendentes</span>
+        </div>
+        <div class="stat-value azul">{{ totalPendentes }}</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-head">
+          <ion-icon name="trending-up-outline" class="icone-marrom"></ion-icon>
+          <span>Média</span>
+        </div>
+        <div class="stat-value marrom">{{ mediaNotas ?? '—' }}</div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+      <button class="filtro-btn" [class.ativo]="filtro === 'todas'" (click)="setFiltro('todas')">Todas</button>
+      <button class="filtro-btn" [class.ativo]="filtro === 'pendentes'" (click)="setFiltro('pendentes')">Pendentes</button>
+      <button class="filtro-btn" [class.ativo]="filtro === 'concluidas'" (click)="setFiltro('concluidas')">Concluídas</button>
+    </div>
+
+    <!-- EMPTY -->
+    <div *ngIf="atividadesFiltradas.length === 0" class="empty-state">
+      <ion-icon name="clipboard-outline"></ion-icon>
+      <h3>Nenhuma atividade encontrada</h3>
+      <p *ngIf="turmaId && isProfessor">Toque no ícone + para criar uma nova atividade</p>
+      <p *ngIf="turmaId && !isProfessor">Você ainda não pegou nenhuma atividade</p>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista-atividades">
+      <div
+        *ngFor="let atividade of atividadesFiltradas"
+        class="atividade-card"
+        [class.card-concluida]="isConcluida(atividade)"
+        [class.card-disponivel]="isPendentePegar(atividade)"
+        (click)="verDetalhes(atividade)">
+
+        <div class="card-top">
+          <span class="disciplina-badge">{{ atividade.turmaNome || 'Geral' }}</span>
+          <span *ngIf="isPendentePegar(atividade)" class="disponivel-badge">Disponível</span>
+          <ion-icon *ngIf="isConcluida(atividade)" name="checkmark-circle" class="status-ok"></ion-icon>
+          <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+        </div>
+
+        <h3 class="atividade-titulo">{{ atividade.titulo }}</h3>
+
+        <div class="atividade-meta">
+          <span class="meta-item" [class.atrasada]="isAtrasada(atividade)">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ isAtrasada(atividade) ? 'Atrasada' : (atividade.dataEntrega | date:'dd/MM') }}
+          </span>
+          <span class="meta-item">
+            <ion-icon name="star-outline"></ion-icon>
+            {{ atividade.pontuacao }} pts
+          </span>
+          <span class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ atividade.tentativasUsadas || 0 }}/{{ atividade.tentativas }} tentativas
+          </span>
+        </div>
+
+        <!-- ARQUIVO ANEXADO -->
+        <div *ngIf="atividade.urlArquivo" class="arquivo-anexado" (click)="$event.stopPropagation()">
+          <ion-icon name="document-attach-outline"></ion-icon>
+          <a [href]="atividade.urlArquivo" target="_blank" rel="noopener">Ver arquivo anexado</a>
+        </div>
+
+        <!-- NOTA -->
+        <div *ngIf="atividade.status === 'CONCLUIDA' || atividade.nota" class="nota-bloco">
+          <div class="nota-linha">
+            <strong>Nota: {{ atividade.nota || 0 }}/100</strong>
+            <span *ngIf="atividade.tempoGasto">Tempo: {{ atividade.tempoGasto }} min</span>
+          </div>
+          <p *ngIf="atividade.feedback" class="nota-feedback">{{ atividade.feedback }}</p>
+        </div>
+
+        <!-- AÇÕES ALUNO -->
+        <div class="acoes-atividade" *ngIf="!isProfessor" (click)="$event.stopPropagation()">
+          <button
+            *ngIf="isPendentePegar(atividade)"
+            class="btn-acao pegar"
+            [disabled]="atividade.carregandoAcao"
+            (click)="pegarAtividade(atividade, $event)">
+            <ion-spinner *ngIf="atividade.carregandoAcao" name="crescent"></ion-spinner>
+            <ng-container *ngIf="!atividade.carregandoAcao">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              Pegar atividade
+            </ng-container>
+          </button>
+
+          <button
+            *ngIf="isPendenteConcluir(atividade)"
+            class="btn-acao concluir"
+            [disabled]="atividade.carregandoAcao"
+            (click)="marcarComoConcluida(atividade, $event)">
+            <ion-spinner *ngIf="atividade.carregandoAcao" name="crescent"></ion-spinner>
+            <ng-container *ngIf="!atividade.carregandoAcao">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              Marcar como concluída
+            </ng-container>
+          </button>
+
+          <div *ngIf="isConcluida(atividade)" class="badge-concluida">
+            <ion-icon name="checkmark-done-circle"></ion-icon>
+            Concluída
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AÇÕES DE TURMA -->
+    <div *ngIf="turmaId" class="acoes-turma">
+      <button *ngIf="isProfessor" class="acao-chip perigo" (click)="excluirTurma()">
+        <ion-icon name="trash-outline"></ion-icon>
+        Excluir turma
+      </button>
+
+      <button
+        *ngIf="!isProfessor && vinculoId"
+        class="acao-chip neutro"
+        (click)="sairTurma()"
+        [disabled]="possuiAtividadesPendentes">
+        <ion-icon name="exit-outline"></ion-icon>
+        Sair da turma
+      </button>
+    </div>
+
+  </div>
+
+</ion-content>
+
+<!-- MODAL: CRIAR ATIVIDADE -->
+<ion-modal [isOpen]="modalCriarAtividade" (ionModalDidDismiss)="fecharModalCriarAtividade()">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="custom-toolbar">
+        <ion-title>Nova atividade</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="fecharModalCriarAtividade()" color="dark">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+
+      <div class="form-group">
+        <label>Título *</label>
+        <ion-input [(ngModel)]="novaAtividade.titulo" placeholder="Ex: Fotosíntese - Parte 1" mode="md" fill="outline"></ion-input>
+      </div>
+
+      <div class="form-group">
+        <label>Descrição *</label>
+        <ion-textarea [(ngModel)]="novaAtividade.descricao" placeholder="Descreva a atividade..." rows="3" mode="md" fill="outline"></ion-textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Pontuação *</label>
+          <ion-input type="number" [(ngModel)]="novaAtividade.pontuacao" mode="md" fill="outline"></ion-input>
+        </div>
+        <div class="form-group">
+          <label>XP *</label>
+          <ion-input type="number" [(ngModel)]="novaAtividade.xp" mode="md" fill="outline"></ion-input>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Data de entrega *</label>
+        <ion-input type="date" [(ngModel)]="novaAtividade.dataEntrega" mode="md" fill="outline"></ion-input>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tentativas *</label>
+          <ion-input type="number" [(ngModel)]="novaAtividade.tentativas" mode="md" fill="outline"></ion-input>
+        </div>
+        <div class="form-group">
+          <label>Dificuldade (1-5) *</label>
+          <ion-input type="number" [(ngModel)]="novaAtividade.dificuldade" min="1" max="5" mode="md" fill="outline"></ion-input>
+        </div>
+      </div>
+
+      <!-- UPLOAD DE ARQUIVO -->
+      <div class="form-group">
+        <label>Arquivo (opcional)</label>
+
+        <div *ngIf="!arquivoSelecionado" class="upload-area" (click)="fileInput.click()">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <span>Clique para anexar um arquivo</span>
+          <small>PDF, imagem, docx, etc.</small>
+          <input #fileInput type="file" (change)="onArquivoSelecionado($event)" hidden />
+        </div>
+
+        <div *ngIf="arquivoSelecionado" class="arquivo-preview">
+          <ion-icon name="document-attach-outline"></ion-icon>
+          <span>{{ arquivoSelecionado.name }}</span>
+          <button (click)="removerArquivo()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-criar" (click)="confirmarCriarAtividade()" [disabled]="isLoading">
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        <span *ngIf="!isLoading">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Criar atividade
+        </span>
+      </button>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>

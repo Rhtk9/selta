@@ -1,0 +1,176 @@
+.planta-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 320 / 380;
+  transition: filter 0.6s ease;
+}
+
+.cenario-fundo {
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/cenarios/fundo-padrao.png.jpg');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  overflow: visible;
+  transition: transform 0.5s ease;
+  transform-origin: bottom center;
+}
+
+.svg-inline {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+:host ::ng-deep .svg-inline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+[data-fase="1"] img,
+[data-fase="2"] img {
+  transform: translateY(40px);
+}
+
+:host ::ng-deep [data-fase="1"] .svg-inline svg,
+:host ::ng-deep [data-fase="2"] .svg-inline svg {
+  transform: translateY(40px);
+}
+
+:host ::ng-deep .plant-aerial {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: planta-brisa var(--plant-sway-duration, 4.6s) ease-in-out infinite;
+}
+
+.planta-wrapper[data-felicidade="feliz"] {
+  --plant-sway-angle: 2.5deg;
+  --plant-sway-duration: 3.4s;
+}
+
+.planta-wrapper[data-felicidade="neutra"] {
+  --plant-sway-angle: 1.8deg;
+  --plant-sway-duration: 4.6s;
+}
+
+.planta-wrapper[data-felicidade="triste"] {
+  --plant-lean-angle: -4deg;
+  --plant-sway-angle: 1deg;
+  --plant-sway-duration: 6.2s;
+}
+
+.planta-wrapper[data-saude="critica"] {
+  --plant-sway-angle: 1.2deg;
+  --plant-sway-duration: 7s;
+}
+
+:host ::ng-deep .planta-wrapper .plant-soil .st2 {
+  transition: fill 700ms ease;
+}
+
+:host ::ng-deep .planta-wrapper[data-agua="seca"] .plant-soil .st2 {
+  fill: #c9a86a;
+}
+
+:host ::ng-deep .planta-wrapper[data-agua="ideal"] .plant-soil .st2 {
+  fill: #6b4a2b;
+}
+
+:host ::ng-deep .planta-wrapper[data-agua="encharcada"] .plant-soil .st2 {
+  fill: #3a2a1a;
+}
+
+@keyframes planta-brisa {
+  0%, 100% {
+    transform: rotate(calc(var(--plant-lean-angle, 0deg) - var(--plant-sway-angle, 1.8deg)));
+  }
+  50% {
+    transform: rotate(calc(var(--plant-lean-angle, 0deg) + var(--plant-sway-angle, 1.8deg)));
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Visibilidade das árvores (só uma visível por vez)
+   ═══════════════════════════════════════════ */
+.arvore {
+  display: none;
+}
+
+[data-fase="1"] .arvore-1,
+[data-fase="2"] .arvore-2,
+[data-fase="3"] .arvore-3,
+[data-fase="4"] .arvore-4,
+[data-fase="5"] .arvore-5 {
+  display: block;
+}
+
+/* ═══════════════════════════════════════════
+   Paleta das árvores
+   - st0 = solo (controlado por data-agua abaixo)
+   - st1 = tronco/ramos
+   - st2 = folhas (varia por estágio)
+   ═══════════════════════════════════════════ */
+.st0 { fill: #6b4a2b; }
+.st1 { fill: #6B4A2B; }
+
+/* Folhas por estágio — progressão do verde claro ao escuro */
+[data-fase="1"] .st2 { fill: #B7E4C7; }
+[data-fase="2"] .st2 { fill: #95D5B2; }
+[data-fase="3"] .st2 { fill: #74C69D; }
+[data-fase="4"] .st2 { fill: #52B788; }
+[data-fase="5"] .st2 { fill: #2D6A4F; }
+
+/* ═══════════════════════════════════════════
+   Cor do solo conforme água
+   ═══════════════════════════════════════════ */
+[data-agua="seca"] .st0       { fill: #c9a86a; }
+[data-agua="ideal"] .st0      { fill: #6b4a2b; }
+[data-agua="encharcada"] .st0 { fill: #3a2a1a; }
+
+/* ═══════════════════════════════════════════
+   Efeito de saúde (filtro)
+   ═══════════════════════════════════════════ */
+[data-saude="alta"]    { filter: none; }
+[data-saude="media"]   { filter: saturate(0.85) brightness(0.97); }
+[data-saude="baixa"]   { filter: saturate(0.55) brightness(0.85); }
+[data-saude="critica"] { filter: grayscale(0.8) brightness(0.7); }
+
+/* ═══════════════════════════════════════════
+   Efeito de humor (animação)
+   ═══════════════════════════════════════════ */
+[data-felicidade="feliz"] svg {
+  animation: balancar 3.5s ease-in-out infinite;
+}
+[data-felicidade="neutra"] svg {
+  transform: rotate(0deg);
+}
+[data-felicidade="triste"] svg {
+  transform: rotate(7deg);
+}
+
+@keyframes balancar {
+  0%, 100% { transform: rotate(-1deg); }
+  50%      { transform: rotate(1.5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .plant-aerial { animation: none; }
+}

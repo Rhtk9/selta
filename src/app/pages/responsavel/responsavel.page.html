@@ -1,0 +1,169 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="leaf" class="header-icon"></ion-icon>
+      Painel do Responsável
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Chips de alunos -->
+  <div class="chips-alunos" *ngIf="alunosVinculados.length > 0">
+    <ion-chip
+      *ngFor="let aluno of alunosVinculados"
+      [outline]="alunoSelecionado?.id !== aluno.id"
+      [color]="alunoSelecionado?.id === aluno.id ? 'primary' : 'medium'"
+      (click)="selecionarAluno(aluno)">
+      <ion-label>{{ aluno.nome }}</ion-label>
+    </ion-chip>
+  </div>
+
+  <!-- Botão "Vincular aluno" — sempre visível, largura total -->
+  <ion-button
+    expand="block"
+    fill="solid"
+    class="btn-vincular"
+    (click)="abrirVincularAluno()"
+    *ngIf="!isLoadingLista">
+    <ion-icon slot="start" name="person-add-outline"></ion-icon>
+    Vincular aluno
+  </ion-button>
+
+  <!-- Loading da lista -->
+  <div class="estado-vazio" *ngIf="isLoadingLista">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <!-- Estado vazio (primeira vez, sem nenhum aluno) -->
+  <div class="estado-vazio" *ngIf="!isLoadingLista && alunosVinculados.length === 0">
+    <ion-icon name="people-outline" class="icone-vazio"></ion-icon>
+    <h2>Nenhum aluno vinculado</h2>
+    <p>Vincule-se a um aluno para acompanhar o progresso dele nos estudos e nos cuidados com a planta virtual.</p>
+  </div>
+
+  <!-- Painel do aluno selecionado -->
+  <div *ngIf="alunoSelecionado">
+
+    <div class="card-header-aluno">
+      <div class="tag-topo">
+        <ion-icon name="heart-outline"></ion-icon>
+        PAINEL DO RESPONSÁVEL
+      </div>
+      <div class="linha-aluno">
+        <div class="avatar-aluno">{{ getIniciais(alunoSelecionado.nome) }}</div>
+        <div>
+          <h2>{{ alunoSelecionado.nome }}</h2>
+          <p>Aluno(a) • {{ qtdTurmasAtivas }} turma{{ qtdTurmasAtivas === 1 ? '' : 's' }}</p>
+        </div>
+      </div>
+      <div class="status-ativo" *ngIf="diasSemCuidar !== null">
+        <span class="bolinha" [class.inativo]="diasSemCuidar > 2"></span>
+        {{ diasSemCuidar === 0 ? 'Ativo hoje' : (diasSemCuidar + ' dia(s) sem cuidar da planta') }}
+      </div>
+    </div>
+
+    <ion-card class="card-alerta" *ngIf="alertaPlanta">
+      <ion-card-content class="conteudo-alerta">
+        <ion-icon name="warning-outline" color="warning"></ion-icon>
+        <div>
+          <strong>Atenção necessária</strong>
+          <p>{{ alertaPlanta }}</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="estado-vazio" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+
+      <ion-card class="card-planta" *ngIf="planta">
+        <ion-card-content>
+          <div class="planta-topo">
+            <div>
+              <div class="rotulo">
+                <ion-icon name="leaf-outline"></ion-icon>
+                Planta de {{ alunoSelecionado.nome.split(' ')[0] }}
+              </div>
+              <h3>{{ planta.apelido }} 🌱</h3>
+              <p>Fase {{ planta.nivel }} — {{ planta.faseNome || planta.especieNomePopular }}</p>
+            </div>
+            <ion-icon name="leaf" class="planta-icone"></ion-icon>
+          </div>
+
+          <div class="progresso-planta">
+            <div class="progresso-legenda">
+              <span>Evolução</span>
+              <span>{{ progressoPlanta }}%</span>
+            </div>
+            <ion-progress-bar [value]="progressoPlanta / 100" color="success"></ion-progress-bar>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="card-planta card-sem-planta" *ngIf="!planta">
+        <ion-card-content>
+          <ion-icon name="leaf-outline"></ion-icon>
+          <p>{{ alunoSelecionado.nome.split(' ')[0] }} ainda não tem uma planta cadastrada.</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-grid class="grid-stats">
+        <ion-row>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat verde"><ion-icon name="trending-up-outline"></ion-icon></div>
+              <h3>{{ progressoPlanta }}%</h3>
+              <p>Progresso da planta</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat azul"><ion-icon name="school-outline"></ion-icon></div>
+              <h3>{{ qtdTurmasAtivas }}</h3>
+              <p>Turmas ativas</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat verde"><ion-icon name="water-outline"></ion-icon></div>
+              <h3>{{ qtdRegistros }}</h3>
+              <p>Cuidados registrados</p>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <div class="card-stat">
+              <div class="icone-stat amarelo"><ion-icon name="time-outline"></ion-icon></div>
+              <h3>{{ diasSemCuidar ?? '—' }}</h3>
+              <p>Dias sem cuidar</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <p class="nota-em-breve">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Notas de tarefas e quizzes vão aparecer aqui assim que a parte de turmas/atividades estiver pronta.
+      </p>
+
+      <h4 class="titulo-secao">Atividades recentes</h4>
+      <div class="lista-feed" *ngIf="feed.length > 0">
+        <div class="item-feed" *ngFor="let item of feed">
+          <div class="icone-feed" [ngClass]="item.cor">
+            <ion-icon [name]="item.icone"></ion-icon>
+          </div>
+          <div>
+            <p class="texto-feed">{{ item.texto }}</p>
+            <p class="tempo-feed">{{ tempoRelativo(item.data) }}</p>
+          </div>
+        </div>
+      </div>
+      <p class="feed-vazio" *ngIf="feed.length === 0">Nenhuma atividade recente registrada ainda.</p>
+
+    </ng-container>
+  </div>
+
+</ion-content>

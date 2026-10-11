@@ -1,0 +1,305 @@
+<!-- src/app/pages/perfil/perfil.page.html -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <ion-title>
+      <span class="page-title">Perfil</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-badge class="badge-papel" [color]="papeis[1]?.ativo ? 'primary' : 'success'">
+        {{ papeis[1]?.ativo ? 'Professor' : 'Aluno' }}
+      </ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- ==================== CABEÇALHO ==================== -->
+  <div class="perfil-card">
+    <div class="perfil-top">
+      <div class="avatar-wrapper">
+        <div class="avatar" [style.backgroundImage]="imagem ? 'url(' + imagem + ')' : ''">
+          <span *ngIf="!imagem">{{ getIniciais() }}</span>
+        </div>
+        <button class="avatar-edit" (click)="uploadImagem()">
+          <ion-icon name="camera-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="perfil-info">
+        <h2>{{ nome || 'Usuário' }}</h2>
+        <p class="email">{{ email }}</p>
+
+        <div class="papeis-badges">
+          <span *ngFor="let papel of papeis" class="papel-badge" [class.ativo]="papel.ativo">
+            <ion-icon [name]="papel.icone"></ion-icon>
+            {{ papel.titulo }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- XP / NÍVEL -->
+    <div class="xp-box">
+      <div class="xp-head">
+        <div class="xp-label">
+          <ion-icon name="star-outline"></ion-icon>
+          <strong>Nível {{ nivel }}</strong>
+        </div>
+        <span class="xp-total">{{ xpTotal }} XP total</span>
+      </div>
+
+      <div class="xp-bar">
+        <div class="xp-fill" [style.width.%]="progressoXP"></div>
+      </div>
+
+      <p class="xp-missing">
+        Faltam <strong>{{ xpProximoNivel - xpTotal }}</strong> XP para o nível {{ nivel + 1 }}
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== STATS ==================== -->
+  <div class="stats-row">
+    <div class="stat-box streak">
+      <ion-icon name="flame-outline"></ion-icon>
+      <strong>{{ sequenciaDias }}d</strong>
+      <span>Streak</span>
+    </div>
+
+    <div class="stat-box aulas">
+      <ion-icon name="flash-outline"></ion-icon>
+      <strong>{{ totalAulas }}</strong>
+      <span>Aulas</span>
+    </div>
+
+    <div class="stat-box media">
+      <ion-icon name="star-outline"></ion-icon>
+      <strong>{{ mediaNotas || 0 }}%</strong>
+      <span>Média</span>
+    </div>
+  </div>
+
+  <!-- ==================== BOTÕES DE AÇÃO ==================== -->
+  <div class="action-buttons">
+    <ion-button expand="block" fill="outline" (click)="toggleEdit()" class="btn-edit">
+      <ion-icon slot="start" [name]="isEditing ? 'close-outline' : 'create-outline'"></ion-icon>
+      {{ isEditing ? 'Cancelar Edição' : 'Editar Perfil' }}
+    </ion-button>
+
+    <ion-button expand="block" fill="outline" (click)="togglePasswordChange()" class="btn-password">
+      <ion-icon slot="start" [name]="isChangingPassword ? 'close-outline' : 'lock-closed-outline'"></ion-icon>
+      {{ isChangingPassword ? 'Cancelar' : 'Alterar Senha' }}
+    </ion-button>
+  </div>
+
+  <!-- ==================== EDIÇÃO ==================== -->
+  <div *ngIf="isEditing" class="edit-section">
+    <div class="section-title">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Dados Pessoais</span>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Nome *</ion-label>
+        <ion-input [(ngModel)]="nome" placeholder="Seu nome"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Email *</ion-label>
+        <ion-input [(ngModel)]="email" type="email" placeholder="seu@email.com"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Bio</ion-label>
+        <ion-textarea [(ngModel)]="bio" placeholder="Fale um pouco sobre você..." rows="3"></ion-textarea>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Data de Nascimento</ion-label>
+        <ion-input [(ngModel)]="dataNascimento" type="date"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Notificações</ion-label>
+        <ion-toggle [(ngModel)]="notificacoes" color="success" slot="end"></ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Sons</ion-label>
+        <ion-toggle [(ngModel)]="som" color="success" slot="end"></ion-toggle>
+      </ion-item>
+    </ion-list>
+
+    <ion-button
+      expand="block"
+      (click)="salvarPerfil()"
+      [disabled]="isLoading"
+      class="btn-save">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Salvar Alterações</span>
+    </ion-button>
+  </div>
+
+  <!-- ==================== ALTERAR SENHA ==================== -->
+  <div *ngIf="isChangingPassword" class="edit-section senha-section">
+    <div class="section-title">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <span>Alterar Senha</span>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Senha Atual *</ion-label>
+        <ion-input [(ngModel)]="senhaAtual" type="password" placeholder="Digite sua senha atual"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Nova Senha *</ion-label>
+        <ion-input [(ngModel)]="novaSenha" type="password" placeholder="Nova senha (mínimo 6 caracteres)"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Confirmar Nova Senha *</ion-label>
+        <ion-input [(ngModel)]="confirmarSenha" type="password" placeholder="Confirme a nova senha"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" (click)="alterarSenha()" [disabled]="isLoading" class="btn-save laranja">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Alterar Senha</span>
+    </ion-button>
+  </div>
+
+  <!-- ==================== PAPÉIS DINÂMICOS ==================== -->
+  <div class="section-card" *ngIf="!isEditing && !isChangingPassword">
+    <h3 class="section-title">Meus papéis dinâmicos</h3>
+    <p class="section-subtitle">
+      Seu papel muda automaticamente de acordo com suas ações no app.
+      Uma conta, múltiplos papéis!
+    </p>
+
+    <div class="papeis-lista">
+      <div
+        *ngFor="let papel of papeis"
+        class="papel-item"
+        [class.ativo]="papel.ativo"
+        [class.clicavel]="papel.ativo && papel.rota"
+        (click)="papel.ativo && papel.rota ? navegarPara(papel.rota) : null">
+
+        <div class="papel-icon">
+          <ion-icon [name]="papel.icone"></ion-icon>
+        </div>
+
+        <div class="papel-info">
+          <strong>{{ papel.titulo }}</strong>
+          <small>{{ papel.descricao }}</small>
+        </div>
+
+        <div class="papel-status">
+          <span *ngIf="papel.ativo" class="dot ativo"></span>
+          <ion-icon *ngIf="papel.ativo && papel.rota" name="chevron-forward-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MENU DE OPÇÕES ==================== -->
+  <div class="section-card menu-opcoes" *ngIf="!isEditing && !isChangingPassword">
+    <button class="opcao-item" (click)="navegarPara('/notificacoes')">
+      <div class="opcao-icon">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </div>
+      <div class="opcao-info">
+        <strong>Notificações</strong>
+        <small>Gerencie seus alertas</small>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+    </button>
+
+    <button class="opcao-item" (click)="navegarPara('/compartilhar')">
+      <div class="opcao-icon">
+        <ion-icon name="share-social-outline"></ion-icon>
+      </div>
+      <div class="opcao-info">
+        <strong>Compartilhar progresso</strong>
+        <small>Mostre sua evolução</small>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+    </button>
+
+    <button class="opcao-item" (click)="navegarPara('/relatorios')">
+      <div class="opcao-icon">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+      </div>
+      <div class="opcao-info">
+        <strong>Relatórios</strong>
+        <small>Veja seu desempenho</small>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+    </button>
+
+    <button class="opcao-item" (click)="abrirConfiguracoes()">
+      <div class="opcao-icon">
+        <ion-icon name="settings-outline"></ion-icon>
+      </div>
+      <div class="opcao-info">
+        <strong>Configurações da conta</strong>
+        <small>Privacidade e dados</small>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+    </button>
+
+    <button class="opcao-item sair" (click)="sair()">
+      <div class="opcao-icon">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </div>
+      <div class="opcao-info">
+        <strong>Sair da conta</strong>
+        <small>Encerrar sessão</small>
+      </div>
+    </button>
+  </div>
+
+  <p class="footer-text">BioGrow v1.0.0 • Feito com 🌱 e tecnologia</p>
+
+</ion-content>
+
+<!-- ==================== MODAL WEBCAM ==================== -->
+<ion-modal [isOpen]="webcamAberta" (ionModalDidDismiss)="fecharWebcam()">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Tirar foto</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="fecharWebcam()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding" style="--background: #000;">
+      <div class="webcam-container">
+        <video
+          #videoElement
+          autoplay
+          playsinline
+          muted
+          class="webcam-video">
+        </video>
+
+        <button class="btn-capturar" (click)="capturarFoto()">
+          <ion-icon name="camera-outline"></ion-icon>
+          Capturar foto
+        </button>
+
+        <p class="webcam-info">
+          Sua câmera está sendo usada. Clique em "Capturar foto" quando estiver pronto.
+        </p>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -1,0 +1,24 @@
+// theme/variables.scss
+:root {
+  /* Forest Green Palette */
+  --forest-900: #081C15;
+  --forest-800: #1B4332;
+  --forest-700: #2D6A4F;
+  --forest-600: #40916C;
+  --forest-500: #52B788;
+  --forest-400: #74C69D;
+  --forest-300: #95D5B2;
+  --forest-200: #B7E4C7;
+  --forest-100: #D8F3DC;
+  --forest-50: #F0FAF3;
+
+  --ion-color-primary: #2D6A4F;
+  --ion-color-primary-rgb: 45,106,79;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #1B4332;
+  --ion-color-primary-tint: #40916C;
+
+  --ion-background-color: #F8FDF9;
+  --ion-text-color: #1B4332;
+}

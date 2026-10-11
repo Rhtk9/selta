@@ -1,0 +1,150 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button color="dark"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Notificações</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- ============ HEADER ============ -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Notificações</h1>
+      <p class="page-subtitle">
+        {{ naoLidas > 0 ? naoLidas + ' não lidas' : 'Tudo em ordem' }}
+      </p>
+    </div>
+
+    <div class="badge-count" *ngIf="naoLidas > 0">
+      {{ naoLidas }}
+    </div>
+  </div>
+
+  <!-- ============ BOTÃO MARCAR TODAS ============ -->
+  <button
+    *ngIf="naoLidas > 0"
+    class="btn-marcar-todas"
+    (click)="marcarTodasComoLidas()">
+    Marcar todas como lidas
+  </button>
+
+  <!-- ============ FILTROS ============ -->
+  <div class="filtros">
+    <button
+      *ngFor="let f of filtros"
+      class="filtro-btn"
+      [class.ativo]="filtroAtivo === f.id"
+      (click)="setFiltro(f.id)">
+      {{ f.label }}
+    </button>
+  </div>
+
+  <!-- ============ LOADING ============ -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando notificações...</p>
+  </div>
+
+  <!-- ============ LISTA ============ -->
+  <div *ngIf="!isLoading" class="lista-notificacoes">
+
+    <!-- Vazio -->
+    <div *ngIf="notificacoesFiltradas.length === 0" class="empty-state">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <h3>Nenhuma notificação</h3>
+      <p>Você está em dia! 🌱</p>
+    </div>
+
+    <!-- Cards -->
+    <div
+      *ngFor="let n of notificacoesFiltradas"
+      class="notificacao-card"
+      [class.urgente]="n.urgente"
+      [class.lida]="n.lida"
+      (click)="abrirNotificacao(n)">
+
+      <!-- Ícone -->
+      <div class="notif-icon" [ngClass]="getCorIcone(n.tipo)">
+        <ion-icon [name]="getIcone(n.tipo)"></ion-icon>
+      </div>
+
+      <!-- Conteúdo -->
+      <div class="notif-content">
+        <div class="notif-header">
+          <span class="notif-urgente" *ngIf="n.urgente">URGENTE</span>
+          <span class="notif-nao-lida" *ngIf="!n.lida"></span>
+        </div>
+        <h4 class="notif-titulo">{{ n.titulo }}</h4>
+        <p class="notif-descricao">{{ n.descricao }}</p>
+        <span class="notif-tempo">{{ tempoRelativo(n.dataCriacao) }}</span>
+      </div>
+
+      <!-- Botão descartar -->
+      <button class="btn-descartar" (click)="descartar(n, $event)">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- ============ CONFIGURAÇÕES ============ -->
+  <div class="config-card">
+    <h3 class="config-titulo">
+      <ion-icon name="notifications-outline"></ion-icon>
+      Configurações de alertas
+    </h3>
+
+    <div class="config-item">
+      <div class="config-info">
+        <strong>Alertas da planta</strong>
+        <small>Quando precisar de cuidados</small>
+      </div>
+      <ion-toggle
+        [checked]="config.alertasPlanta"
+        (ionChange)="toggleConfig('alertasPlanta')"
+        color="success">
+      </ion-toggle>
+    </div>
+
+    <div class="config-item">
+      <div class="config-info">
+        <strong>Novas aulas</strong>
+        <small>Quando professor adicionar conteúdo</small>
+      </div>
+      <ion-toggle
+        [checked]="config.novasAulas"
+        (ionChange)="toggleConfig('novasAulas')"
+        color="success">
+      </ion-toggle>
+    </div>
+
+    <div class="config-item">
+      <div class="config-info">
+        <strong>Prazos de atividades</strong>
+        <small>Lembrete 2 dias antes</small>
+      </div>
+      <ion-toggle
+        [checked]="config.prazosAtividades"
+        (ionChange)="toggleConfig('prazosAtividades')"
+        color="success">
+      </ion-toggle>
+    </div>
+
+    <div class="config-item">
+      <div class="config-info">
+        <strong>Evolução da planta</strong>
+        <small>Quando avançar de fase</small>
+      </div>
+      <ion-toggle
+        [checked]="config.evolucaoPlanta"
+        (ionChange)="toggleConfig('evolucaoPlanta')"
+        color="success">
+      </ion-toggle>
+    </div>
+  </div>
+
+</ion-content>

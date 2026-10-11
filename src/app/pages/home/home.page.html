@@ -1,0 +1,183 @@
+<ion-content class="ion-padding" [fullscreen]="true">
+  <main class="home-container">
+    <section class="welcome-hero">
+      <div class="welcome-avatar">
+        <img *ngIf="usuario?.imagem" [src]="usuario?.imagem" [alt]="nomeUsuario" />
+        <span *ngIf="!usuario?.imagem">{{ getInicial() }}</span>
+      </div>
+      <div class="welcome-copy">
+        <p class="greeting-text">{{ saudacao }},</p>
+        <h1>{{ nomeUsuario }}</h1>
+      </div>
+      <div class="welcome-xp" aria-label="Progresso de XP no nível atual">
+        <div class="welcome-xp-label">
+          <span>Próximo nível</span>
+          <strong>{{ xpAtualNivel }} / {{ xpMaximoNivel }} XP</strong>
+        </div>
+        <div class="welcome-xp-track" role="progressbar" aria-label="Progresso para o próximo nível" [attr.aria-valuenow]="progressoXP" aria-valuemin="0" aria-valuemax="100">
+          <span [style.width.%]="progressoXP"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="Estatísticas do usuário">
+      <article class="stat-card streak-stat">
+        <ion-icon class="stat-icon" name="flame-outline" aria-hidden="true"></ion-icon>
+        <strong class="stat-value">{{ streakDias }}</strong>
+        <span class="stat-label">dias seguidos</span>
+      </article>
+      <article class="stat-card xp-stat">
+        <ion-icon class="stat-icon" name="flash-outline" aria-hidden="true"></ion-icon>
+        <strong class="stat-value">{{ xpTotal }}</strong>
+        <span class="stat-label">XP total</span>
+      </article>
+      <article class="stat-card level-stat">
+        <ion-icon class="stat-icon" name="star-outline" aria-hidden="true"></ion-icon>
+        <strong class="stat-value">{{ nivel }}</strong>
+        <span class="stat-label">nível</span>
+      </article>
+    </section>
+
+    <section class="home-section" *ngIf="ultimaPlanta as planta">
+      <div class="section-header">
+        <h2>Continue de onde parou</h2>
+      </div>
+      <div class="continue-card">
+        <div class="continue-image">
+          <img *ngIf="planta.imagem || planta.especieImagem" [src]="planta.imagem || planta.especieImagem" [alt]="planta.apelido" />
+          <span *ngIf="!planta.imagem && !planta.especieImagem" aria-hidden="true">🌱</span>
+        </div>
+        <div class="continue-copy">
+          <span class="eyebrow">Sua última visita</span>
+          <h3>{{ planta.apelido }}</h3>
+        </div>
+        <ion-button class="continue-button" [routerLink]="['/cuidados-planta', planta.id]">
+          Continuar
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </section>
+
+    <section class="home-section" *ngIf="plantasDisponiveis">
+      <div class="section-header">
+        <h2>Minhas Plantas</h2>
+        <a class="section-link" routerLink="/minhas-plantas">Ver todas <span aria-hidden="true">→</span></a>
+      </div>
+      <p class="section-summary">{{ resumoPlantas }}</p>
+
+      <div class="empty-state" *ngIf="plantas.length === 0">
+        <span class="empty-icon" aria-hidden="true"><ion-icon name="leaf-outline"></ion-icon></span>
+        <p>Adote sua primeira planta!</p>
+        <ion-button fill="outline" routerLink="/explorar-especies">Explorar plantas</ion-button>
+      </div>
+
+      <div class="plant-carousel" *ngIf="plantas.length > 0">
+        <a class="plant-card" *ngFor="let planta of plantas | slice:0:4" [routerLink]="['/cuidados-planta', planta.id]">
+          <div class="plant-image">
+            <img *ngIf="planta.imagem || planta.especieImagem" [src]="planta.imagem || planta.especieImagem" [alt]="planta.apelido" />
+            <span *ngIf="!planta.imagem && !planta.especieImagem" aria-hidden="true">🌱</span>
+            <span class="watering-badge" *ngIf="precisaRegar(planta)">💧 Regar</span>
+          </div>
+          <div class="plant-card-copy">
+            <h3>{{ planta.apelido }}</h3>
+            <div class="water-label">
+              <span>Água</span>
+              <span>{{ getAguaPercentual(planta) }}%</span>
+            </div>
+            <div class="water-progress" role="progressbar" aria-label="Nível de água" [attr.aria-valuenow]="getAguaPercentual(planta)" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="getAguaPercentual(planta)"></span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section" *ngIf="atividadesDisponiveis">
+      <div class="section-header">
+        <h2><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon> Próximos prazos</h2>
+        <a class="section-link" routerLink="/atividades">Ver tudo <span aria-hidden="true">→</span></a>
+      </div>
+
+      <p class="section-summary">{{ resumoPrazos }}</p>
+
+      <div class="deadline-list" *ngIf="proximasAtividades.length > 0">
+        <a class="deadline-item" *ngFor="let atividade of proximasAtividades" [ngClass]="getUrgenciaClass(atividade)" [routerLink]="['/atividades', atividade.turmaId]">
+          <div class="deadline-copy">
+            <h3>{{ atividade.titulo }}</h3>
+            <span *ngIf="atividade.turmaNome">{{ atividade.turmaNome }}</span>
+          </div>
+          <time>{{ formatarDataEntrega(atividade.dataEntrega) }}</time>
+        </a>
+      </div>
+      
+        <div class="deadline-empty-panel" *ngIf="proximasAtividades.length === 0" aria-label="Nenhum prazo próximo">
+          <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+          <span>Nenhuma tarefa por aqui</span>
+        </div>
+
+    </section>
+
+    <section class="home-section" *ngIf="turmasDisponiveis">
+      <div class="section-header">
+        <h2><ion-icon name="people-outline" aria-hidden="true"></ion-icon> Minhas Turmas</h2>
+        <a class="section-link" routerLink="/turmas">Ver todas <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="empty-state compact-empty" *ngIf="turmas.length === 0">
+        <span class="empty-icon" aria-hidden="true"><ion-icon name="people-outline"></ion-icon></span>
+        <p>Você ainda não está em nenhuma turma</p>
+      </div>
+
+      <div class="class-carousel" *ngIf="turmas.length > 0">
+        <a class="class-card" *ngFor="let turma of turmas" [routerLink]="['/atividades', turma.id]">
+          <span class="class-name">{{ turma.nome }}</span>
+          <code>{{ turma.codigo }}</code>
+          <span class="teacher-badge" *ngIf="turmasProfessoras.has(turma.id)">Prof.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section recent-activities" *ngIf="carregando || atividadesDisponiveis">
+      <div class="section-header">
+        <h2><ion-icon name="document-text-outline" aria-hidden="true"></ion-icon> Atividade recente</h2>
+        <a class="section-link" routerLink="/atividades">Ver tudo <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="loading-container" *ngIf="carregando">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Carregando atividades...</p>
+      </div>
+
+      <div class="empty-state compact-empty" *ngIf="!carregando && atividadesRecentes.length === 0">
+        <span class="empty-icon" aria-hidden="true"><ion-icon name="document-text-outline"></ion-icon></span>
+        <p>Nenhuma atividade recente</p>
+        <span>Participe de turmas para ver atividades aqui</span>
+      </div>
+
+      <div class="activity-list" *ngIf="atividadesRecentes.length > 0">
+        <div *ngFor="let atividade of atividadesRecentes" class="activity-item">
+          <div class="activity-icon" [style.backgroundColor]="getCorAtividade(atividade.titulo)">
+            {{ getIconeAtividade(atividade.titulo) }}
+          </div>
+          <div class="activity-content">
+            <p class="activity-text">{{ atividade.titulo }}</p>
+            <p class="activity-time">{{ getTempoRelativo(atividade.dataCriacao) }}</p>
+            <span class="activity-turma" *ngIf="atividade.turmaNome">{{ atividade.turmaNome }}</span>
+          </div>
+          <span class="activity-xp">+{{ atividade.xp }} XP</span>
+        </div>
+      </div>
+    </section>
+
+    <nav class="footer-shortcuts" aria-label="Atalhos">
+      <a routerLink="/compartilhar">
+        <ion-icon name="share-social-outline"></ion-icon>
+        <span>Compartilhar</span>
+      </a>
+      <a routerLink="/notificacoes">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span>Notificações</span>
+      </a>
+    </nav>
+  </main>
+</ion-content>

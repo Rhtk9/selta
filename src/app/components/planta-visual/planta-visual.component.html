@@ -1,0 +1,13 @@
+<div
+  class="planta-wrapper"
+  [style.max-width.px]="tamanho"
+  [attr.data-fase]="estagioVisual"
+  [attr.data-saude]="nivelSaude"
+  [attr.data-agua]="nivelAgua"
+  [attr.data-felicidade]="nivelFelicidade">
+
+  <div class="cenario-fundo"></div>
+
+  <div *ngIf="svgInline" class="svg-inline" [innerHTML]="svgInline"></div>
+  <img *ngIf="!svgInline" [src]="getEstagioUrl()" [alt]="'Planta em estágio ' + estagioVisual">
+</div>

@@ -1,0 +1,180 @@
+
+<ion-content class="ion-padding">
+
+  <div class="page-header">
+    <h1 class="page-title">Compartilhar</h1>
+    <p class="page-subtitle">Mostre seu progresso para o mundo!</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <!-- Tipo de card -->
+    <h3 class="section-label">Escolha o tipo de card</h3>
+
+    <div class="cards-options">
+      <button
+        *ngFor="let card of cards"
+        class="card-option"
+        [class.ativo]="tipoCard === card.id"
+        (click)="setTipoCard(card.id)">
+        <span class="radio-dot"></span>
+        <div class="card-option-text">
+          <strong>{{ card.titulo }}</strong>
+          <small>{{ card.descricao }}</small>
+        </div>
+      </button>
+    </div>
+
+    <!-- Preview -->
+    <h3 class="section-label">Preview do card</h3>
+
+    <div class="preview-card">
+
+      <!-- ============ CARD: PLANTA ============ -->
+      <ng-container *ngIf="tipoCard === 'planta'">
+        <div class="preview-top">
+          <span class="preview-brand">BIOGROW ✨</span>
+          <span class="preview-fase">Fase {{ nivelPlanta }}</span>
+        </div>
+
+        <h2 class="preview-title">{{ usuario?.nome || 'Usuário' }}</h2>
+        <p class="preview-subtitle">Minha planta virtual</p>
+
+        <div class="preview-plant">
+          <div class="plant-emoji">🌱</div>
+        </div>
+
+        <div class="preview-progress">
+          <div class="preview-progress-bar">
+            <div class="preview-progress-fill" [style.width.%]="progressoPlanta"></div>
+          </div>
+          <div class="preview-progress-info">
+            <span>Evolução</span>
+            <strong>{{ progressoPlanta }}%</strong>
+          </div>
+        </div>
+
+        <div class="preview-stats">
+          <div class="preview-stat">
+            <strong>{{ nivelPlanta }}</strong>
+            <span>Nível</span>
+          </div>
+          <div class="preview-stat">
+            <strong>{{ xpPlanta }}</strong>
+            <span>XP</span>
+          </div>
+          <div class="preview-stat">
+            <strong>{{ streakUsuario }}d</strong>
+            <span>Streak</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ============ CARD: CONQUISTAS ============ -->
+      <ng-container *ngIf="tipoCard === 'conquistas'">
+        <div class="preview-top">
+          <span class="preview-brand">BIOGROW 🏆</span>
+          <span class="preview-fase">Conquistas</span>
+        </div>
+
+        <h2 class="preview-title">{{ usuario?.nome || 'Usuário' }}</h2>
+        <p class="preview-subtitle">Minhas conquistas</p>
+
+        <div class="preview-plant">
+          <div class="plant-emoji">🏆</div>
+        </div>
+
+        <div class="preview-stats" style="margin-top: 40px;">
+          <div class="preview-stat" style="grid-column: 1 / -1;">
+            <strong style="font-size: 56px;">{{ conquistas }}</strong>
+            <span>Badges desbloqueados</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ============ CARD: PROGRESSO ============ -->
+      <ng-container *ngIf="tipoCard === 'progresso'">
+        <div class="preview-top">
+          <span class="preview-brand">BIOGROW 📈</span>
+          <span class="preview-fase">Semanal</span>
+        </div>
+
+        <h2 class="preview-title">{{ usuario?.nome || 'Usuário' }}</h2>
+        <p class="preview-subtitle">Meu progresso</p>
+
+        <div class="preview-plant">
+          <div class="plant-emoji">📈</div>
+        </div>
+
+        <div class="preview-stats" style="margin-top: 40px;">
+          <div class="preview-stat">
+            <strong>{{ streakUsuario }}d</strong>
+            <span>Dias seguidos</span>
+          </div>
+          <div class="preview-stat">
+            <strong>Nv {{ usuario?.nivelUsuario || 1 }}</strong>
+            <span>Nível</span>
+          </div>
+          <div class="preview-stat">
+            <strong>{{ usuario?.xpTotal || 0 }}</strong>
+            <span>XP total</span>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+
+    <!-- URL + copiar -->
+    <div class="url-box">
+      <span class="url-text">{{ shareUrl }}</span>
+      <button class="btn-copiar" (click)="copiarLink()">
+        <ion-icon name="copy-outline"></ion-icon>
+        Copiar
+      </button>
+    </div>
+
+    <!-- Redes sociais -->
+    <h3 class="section-label">Compartilhar nas redes sociais</h3>
+
+    <div class="social-grid">
+      <button class="social-btn twitter" (click)="compartilharRede('twitter')">
+        <ion-icon name="logo-twitter"></ion-icon>
+        <span>Twitter</span>
+      </button>
+
+      <button class="social-btn instagram" (click)="compartilharRede('instagram')">
+        <ion-icon name="logo-instagram"></ion-icon>
+        <span>Instagram</span>
+      </button>
+
+      <button class="social-btn facebook" (click)="compartilharRede('facebook')">
+        <ion-icon name="logo-facebook"></ion-icon>
+        <span>Facebook</span>
+      </button>
+
+      <button class="social-btn whatsapp" (click)="compartilharRede('whatsapp')">
+        <ion-icon name="logo-whatsapp"></ion-icon>
+        <span>WhatsApp</span>
+      </button>
+    </div>
+
+    <!-- Baixar imagem -->
+    <button class="btn-baixar" (click)="baixarImagem()">
+      <ion-icon name="download-outline"></ion-icon>
+      Baixar imagem (PNG)
+    </button>
+
+    <!-- Compartilhar agora -->
+    <button class="btn-compartilhar" (click)="compartilharAgora()">
+      <ion-icon name="share-social-outline"></ion-icon>
+      Compartilhar agora
+    </button>
+
+  </div>
+
+</ion-content>

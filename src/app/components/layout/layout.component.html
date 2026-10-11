@@ -1,0 +1,35 @@
+<!-- src/app/components/layout/layout.component.html -->
+<div class="layout-shell">
+  <ion-split-pane content-id="main-content" when="md">
+    <ion-menu side="start" content-id="main-content" type="push" [swipeGesture]="true">
+      <ion-content>
+        <app-menu></app-menu>
+      </ion-content>
+    </ion-menu>
+
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+
+  <ion-tab-bar class="mobile-tab-bar">
+    <ion-tab-button tab="plantas" routerLink="/minhas-plantas" [selected]="isTabSelected('/minhas-plantas')">
+      <ion-icon name="leaf-outline"></ion-icon>
+      <ion-label>Plantas</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="explorar" routerLink="/explorar-especies" [selected]="isTabSelected('/explorar-especies')">
+      <ion-icon name="flower-outline"></ion-icon>
+      <ion-label>Explorar</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="inicio" routerLink="/home" [selected]="isTabSelected('/home')">
+      <ion-icon name="home-outline"></ion-icon>
+      <ion-label>Início</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="paineis" (click)="abrirPaineis()" [selected]="isPainelSelected()">
+      <ion-icon name="apps-outline"></ion-icon>
+      <ion-label>Painéis</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="mais" routerLink="/mais-opcoes" [selected]="isTabSelected('/mais-opcoes')">
+      <ion-icon name="menu-outline"></ion-icon>
+      <ion-label>Mais</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</div>

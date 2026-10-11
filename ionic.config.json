@@ -1,0 +1,7 @@
+{
+  "name": "Grow",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
