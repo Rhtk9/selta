@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">grow</string>
+    <string name="title_activity_main">grow</string>
+    <string name="package_name">com.grow.id</string>
+    <string name="custom_url_scheme">com.grow.id</string>
+</resources>

@@ -1,0 +1,453 @@
+<!-- src/app/pages/cadastrar-especie/cadastrar-especie.page.html -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/explorar-especies"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Cadastrar Espécie</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- TELA DE SUCESSO -->
+  <div *ngIf="publicado" class="success-container">
+    <div class="success-icon">🌱</div>
+    <h2>Espécie Publicada! 🎉</h2>
+    <p>"{{ especie.nomePopular }}" está disponível para a comunidade</p>
+    <div class="success-tags">
+      <span>🌱 Explorar espécies</span>
+      <span>📊 Ver relatórios</span>
+      <span>🏆 Ranking</span>
+    </div>
+    <ion-button expand="block" (click)="resetarFormulario()" class="btn-primary">
+      Cadastrar Nova Espécie
+    </ion-button>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div *ngIf="!publicado">
+
+    <!-- HEADER COM PROGRESSO -->
+    <div class="progress-header">
+      <div class="header-title">
+        <ion-icon name="flask-outline"></ion-icon>
+        <div>
+          <h2>Cadastrar Espécie</h2>
+          <p>Adicione uma nova planta ao BioGrow</p>
+        </div>
+      </div>
+
+      <!-- Barra de progresso -->
+      <div class="progress-bar">
+        <div class="progress-steps">
+          <div *ngFor="let label of stepLabels; let i = index" class="step-indicator"
+            [class.active]="i + 1 === currentStep" [class.concluido]="i + 1 < currentStep">
+            <div class="step-circle" (click)="irParaStep(i + 1)">
+              <span *ngIf="i + 1 < currentStep">✓</span>
+              <span *ngIf="i + 1 >= currentStep">{{ i + 1 }}</span>
+            </div>
+            <span class="step-label">{{ label.split(' ')[0] }}</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="getProgresso()"></div>
+        </div>
+      </div>
+
+      <p class="step-title">Passo {{ currentStep }} de {{ totalSteps }}: {{ getNomeEtapa(currentStep) }}</p>
+    </div>
+
+    <!-- ETAPA 1: INFORMAÇÕES BÁSICAS -->
+    <div *ngIf="currentStep === 1" class="step-content">
+      <!-- Upload de imagem -->
+      <div class="image-upload" (click)="fileInput.click()">
+        <div *ngIf="especie.imagem" class="image-preview">
+          <img [src]="especie.imagem" alt="Imagem da espécie" />
+          <button type="button" class="remove-image" (click)="$event.stopPropagation(); especie.imagem = ''">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <div *ngIf="!especie.imagem" class="upload-placeholder">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <span>Upload da imagem de capa</span>
+          <small>Arraste ou clique para selecionar</small>
+        </div>
+        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+        <div class="error-message" *ngIf="!especie.imagem && formSubmitted">
+          A imagem de capa é obrigatória.
+        </div>
+      </div>
+
+      <!-- Campos básicos -->
+      <div class="form-grid">
+        <div class="form-group full">
+          <ion-label>Nome Popular *</ion-label>
+          <ion-input [(ngModel)]="especie.nomePopular" placeholder="ex: Rosa" name="nomePopular"></ion-input>
+        </div>
+
+        <div class="form-group full">
+          <ion-label>Nome Científico *</ion-label> <!-- asterisco adicionado -->
+          <ion-input [(ngModel)]="especie.nomeCientifico" placeholder="ex: Rosa spp." name="nomeCientifico"></ion-input>
+        </div>
+
+        <div class="form-group">
+          <ion-label>Classificação *</ion-label>
+          <ion-select [(ngModel)]="especie.classificacao" placeholder="Selecionar" name="classificacao">
+            <ion-select-option *ngFor="let item of classificacoes" [value]="item">{{ item }}</ion-select-option>
+          </ion-select>
+        </div>
+
+        <div class="form-group">
+          <ion-label>Dificuldade *</ion-label>
+          <ion-select [(ngModel)]="especie.dificuldadeCultivo" placeholder="Selecionar" name="dificuldade">
+            <ion-select-option *ngFor="let item of dificuldades" [value]="item">{{ item }}</ion-select-option>
+          </ion-select>
+        </div>
+
+        <div class="form-group">
+          <ion-label>Ambiente *</ion-label>
+          <ion-select [(ngModel)]="especie.ambiente" placeholder="Selecionar" name="ambiente">
+            <ion-select-option *ngFor="let item of ambientes" [value]="item">{{ item }}</ion-select-option>
+          </ion-select>
+        </div>
+
+        <div class="form-group">
+          <ion-label>Raridade</ion-label>
+          <ion-select [(ngModel)]="especie.raridade" placeholder="Selecionar" name="raridade">
+            <ion-select-option *ngFor="let item of raridades" [value]="item">{{ item }}</ion-select-option>
+          </ion-select>
+        </div>
+
+        <div class="form-group full">
+          <ion-label>Descrição</ion-label>
+          <ion-textarea [(ngModel)]="especie.descricao" placeholder="Descreva a espécie..." rows="3"
+            name="descricao"></ion-textarea>
+        </div>
+
+        <div class="form-group full">
+          <ion-label>Pública</ion-label>
+          <ion-toggle [(ngModel)]="especie.publica" name="publica"></ion-toggle>
+        </div>
+      </div>
+
+      <!-- Condições ideais -->
+      <div class="conditions-card">
+        <h4>Condições Ideais</h4>
+
+        <div class="slider-group">
+          <div class="slider-item">
+            <div class="slider-header">
+              <ion-icon name="thermometer-outline" style="color: #E57373;"></ion-icon>
+              <span>Temperatura Ideal</span>
+              <span class="slider-value">{{ especie.temperatura }}°C</span>
+            </div>
+            <ion-range [(ngModel)]="especie.temperatura" min="5" max="45" step="1" name="temperatura" color="danger">
+              <ion-label slot="start">5°C</ion-label>
+              <ion-label slot="end">45°C</ion-label>
+            </ion-range>
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-header">
+              <ion-icon name="water-outline" style="color: #4A9FCA;"></ion-icon>
+              <span>Umidade Ideal</span>
+              <span class="slider-value">{{ especie.umidade }}%</span>
+            </div>
+            <ion-range [(ngModel)]="especie.umidade" min="0" max="100" step="1" name="umidade" color="tertiary">
+              <ion-label slot="start">0%</ion-label>
+              <ion-label slot="end">100%</ion-label>
+            </ion-range>
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-header">
+              <ion-icon name="sunny-outline" style="color: #F5A623;"></ion-icon>
+              <span>Luminosidade Ideal</span>
+              <span class="slider-value">{{ especie.luminosidade }}%</span>
+            </div>
+            <ion-range [(ngModel)]="especie.luminosidade" min="0" max="100" step="1" name="luminosidade"
+              color="warning">
+              <ion-label slot="start">0%</ion-label>
+              <ion-label slot="end">100%</ion-label>
+            </ion-range>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 2: FASES DA EVOLUÇÃO -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <div class="fases-header">
+        <div>
+          <h4>Fases da Evolução</h4>
+          <p>{{ fases.length }} fase{{ fases.length !== 1 ? 's' : '' }} configurada{{ fases.length !== 1 ? 's' : '' }}
+          </p>
+        </div>
+        <ion-button (click)="abrirModalFase()" class="btn-add-fase">
+          <ion-icon name="add-outline"></ion-icon>
+          Adicionar Fase
+        </ion-button>
+      </div>
+
+      <!-- Lista vazia -->
+      <div *ngIf="fases.length === 0" class="empty-state">
+        <ion-icon name="leaf-outline"></ion-icon>
+        <h5>Nenhuma fase ainda</h5>
+        <p>Adicione as fases de evolução da planta</p>
+        <ion-button (click)="abrirModalFase()" fill="outline">
+          <ion-icon name="add-outline"></ion-icon>
+          Primeira fase
+        </ion-button>
+      </div>
+
+      <!-- Lista de fases -->
+      <div *ngFor="let fase of fases; let i = index" class="fase-card">
+        <div class="fase-card-header">
+          <div class="fase-order">{{ fase.ordem }}</div>
+          <div class="fase-info">
+            <h5>{{ fase.nome || 'Fase sem nome' }}</h5>
+          </div>
+          <div class="fase-actions">
+            <ion-button fill="clear" size="small" (click)="editarFase(fase)">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" color="danger" (click)="removerFase(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+        <div class="fase-card-body">
+          <div class="fase-stats">
+            <span><ion-icon name="water-outline" style="color: #4A9FCA;"></ion-icon> {{ fase.necessidadeFase.aguaMedia
+              }}%</span>
+            <span><ion-icon name="sunny-outline" style="color: #F5A623;"></ion-icon> {{ fase.necessidadeFase.luzMedia
+              }}%</span>
+            <span><ion-icon name="flash-outline" style="color: #2D6A4F;"></ion-icon> {{ fase.xpGanho }} XP</span>
+            <span><ion-icon name="time-outline" style="color: #6b8f74;"></ion-icon> {{ fase.evolucaoFase.diasBons
+              }}d</span>
+          </div>
+          <div class="fase-bars">
+            <div class="bar">
+              <div class="bar-fill" [style.width.%]="fase.necessidadeFase.aguaMedia" style="background:#4A9FCA;"></div>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" [style.width.%]="fase.necessidadeFase.luzMedia" style="background:#F5A623;"></div>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" [style.width.%]="fase.xpGanho > 100 ? 100 : fase.xpGanho"
+                style="background:#2D6A4F;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline de evolução -->
+      <div *ngIf="fases.length > 1" class="timeline-preview">
+        <h5>Timeline de Evolução</h5>
+        <div class="timeline">
+          <div *ngFor="let fase of fases; let i = index" class="timeline-item">
+            <div class="timeline-dot" [style.background]="'hsl(' + (130 + i * 30) + ',60%,50%)'">{{ i + 1 }}</div>
+            <span class="timeline-label">{{ fase.nome || 'Fase ' + (i + 1) }}</span>
+            <div *ngIf="i < fases.length - 1" class="timeline-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 3: REVISÃO E PUBLICAÇÃO -->
+    <div *ngIf="currentStep === 3" class="step-content">
+      <!-- Card de resumo -->
+      <div class="review-card">
+        <div class="review-header" [style.background]="'linear-gradient(135deg, #1B4332, #40916C)'">
+          <div class="review-image" *ngIf="especie.imagem">
+            <img [src]="especie.imagem" alt="Imagem da espécie" />
+          </div>
+          <div class="review-image-placeholder" *ngIf="!especie.imagem">
+            <ion-icon name="leaf-outline"></ion-icon>
+          </div>
+          <div class="review-title">
+            <h3>{{ especie.nomePopular || 'Sem nome' }}</h3>
+            <p>{{ especie.nomeCientifico || 'Nome científico' }}</p>
+            <span class="review-tag" [style.background]="getBgDificuldade(especie.dificuldadeCultivo)"
+              [style.color]="getCorDificuldade(especie.dificuldadeCultivo)">
+              {{ especie.dificuldadeCultivo || 'Dificuldade' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="review-body">
+          <div class="review-tags">
+            <span *ngIf="especie.classificacao">{{ especie.classificacao }}</span>
+            <span *ngIf="especie.ambiente">{{ especie.ambiente }}</span>
+            <span *ngIf="especie.publica" class="public-tag">🌍 Pública</span>
+          </div>
+
+          <p *ngIf="especie.descricao">{{ especie.descricao }}</p>
+
+          <div class="review-conditions">
+            <div class="review-condition">
+              <ion-icon name="thermometer-outline" style="color: #E57373;"></ion-icon>
+              <span>{{ especie.temperatura }}°C</span>
+              <small>Temperatura</small>
+            </div>
+            <div class="review-condition">
+              <ion-icon name="water-outline" style="color: #4A9FCA;"></ion-icon>
+              <span>{{ especie.umidade }}%</span>
+              <small>Umidade</small>
+            </div>
+            <div class="review-condition">
+              <ion-icon name="sunny-outline" style="color: #F5A623;"></ion-icon>
+              <span>{{ especie.luminosidade }}%</span>
+              <small>Luminosidade</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo das fases -->
+      <div class="review-phases">
+        <h5>{{ fases.length }} Fase{{ fases.length !== 1 ? 's' : '' }} de Evolução</h5>
+        <div *ngIf="fases.length === 0" class="empty-phases">
+          <p>Nenhuma fase configurada</p>
+        </div>
+        <div *ngFor="let fase of fases; let i = index" class="review-phase-item">
+          <span class="phase-order">{{ i + 1 }}</span>
+          <div>
+            <span class="phase-name">{{ fase.nome || 'Fase ' + (i + 1) }}</span>
+            <div class="phase-stats">
+              <span>💧{{ fase.necessidadeFase.aguaMedia }}%</span>
+              <span>☀️{{ fase.necessidadeFase.luzMedia }}%</span>
+              <span>⭐{{ fase.xpGanho }} XP</span>
+            </div>
+          </div>
+          <span class="phase-days">{{ fase.evolucaoFase.diasBons }}d</span>
+        </div>
+      </div>
+
+      <!-- Botão Publicar -->
+      <ion-button expand="block" class="btn-publish" (click)="publicarEspecie()" [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+        <span *ngIf="!loading">
+          <ion-icon name="star-outline"></ion-icon>
+          Publicar Espécie!
+        </span>
+      </ion-button>
+    </div>
+
+    <!-- NAVEGAÇÃO ENTRE ETAPAS -->
+    <div class="step-navigation">
+      <ion-button *ngIf="currentStep > 1" fill="outline" (click)="voltarStep()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Voltar
+      </ion-button>
+      <ion-button *ngIf="currentStep < totalSteps" expand="block" class="btn-next" (click)="proximoStep()">
+        Próximo
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>
+
+<!-- MODAL DE FASE -->
+<ion-modal *ngIf="modalAberto" [isOpen]="modalAberto" (ionModalDidDismiss)="fecharModalFase()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ faseEditando?.id ? 'Editar Fase' : 'Nova Fase' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="fecharModalFase()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding" *ngIf="faseEditando">
+      <!-- Informações básicas -->
+      <div class="modal-section">
+        <h6>Informações da Fase</h6>
+        <ion-item>
+          <ion-label position="floating">Nome da Fase *</ion-label>
+          <ion-input [(ngModel)]="faseEditando.nome" placeholder="ex: Germinação"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Ordem</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.ordem" min="1"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Dias Base</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.diasBase" min="1"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Necessidades -->
+      <div class="modal-section">
+        <h6>Necessidades da Fase</h6>
+        <ion-item>
+          <ion-label position="floating">Água Média (%)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.necessidadeFase.aguaMedia" min="0" max="100"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Luz Média (%)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.necessidadeFase.luzMedia" min="0" max="100"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Temperatura Média (°C)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.necessidadeFase.temperaturaMedia" min="5"
+            max="45"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Umidade Média (%)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.necessidadeFase.umidadeMedia" min="0"
+            max="100"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Evolução -->
+      <div class="modal-section">
+        <h6>Evolução</h6>
+        <ion-item>
+          <ion-label position="floating">Dias para evoluir (cuidado bom)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.evolucaoFase.diasBons" min="1"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Dias para evoluir (cuidado médio)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.evolucaoFase.diasMedios" min="1"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Dias para evoluir (cuidado ruim)</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.evolucaoFase.diasRuim" min="1"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- XP -->
+      <div class="modal-section">
+        <h6>XP</h6>
+        <ion-item>
+          <ion-label position="floating">XP Necessário</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.xpNecessario" min="0"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">XP Ganho</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.xpGanho" min="0"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Bônus XP</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.evolucaoFase.bonus" min="0"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Penalidade XP</ion-label>
+          <ion-input type="number" [(ngModel)]="faseEditando.evolucaoFase.penalidade" min="0"></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="modal-actions">
+        <ion-button fill="outline" expand="block" (click)="fecharModalFase()">Cancelar</ion-button>
+        <ion-button expand="block" class="btn-save" (click)="salvarFase()">Salvar Fase</ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

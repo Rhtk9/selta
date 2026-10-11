@@ -1,0 +1,156 @@
+<!-- src/app/pages/minhas-plantas/minhas-plantas.page.html -->
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>Minhas Plantas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Estatísticas rápidas dinâmicas -->
+  <div class="stats-banner" *ngIf="!loading">
+    <div class="stat-item">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="leaf-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span>{{ totalPlantas || 0 }}</span>
+        <small>Plantas</small>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="flash-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span>{{ xpTotal || 0 }}</span>
+        <small>XP Total</small>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="star-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span>{{ nivelMedio || 1 }}</span>
+        <small>Nível Médio</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Busca -->
+  <div class="search-container">
+    <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="onSearchChange()" placeholder="Buscar por nome ou espécie..."
+      showCancelButton="focus" animated="true" class="custom-searchbar"></ion-searchbar>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <ion-chip *ngFor="let filtro of filtros" [color]="filtroAtivo === filtro.id ? 'primary' : 'medium'"
+      (click)="setFiltro(filtro.id)" [outline]="filtroAtivo !== filtro.id">
+      <ion-label>{{ filtro.label }}</ion-label>
+    </ion-chip>
+  </div>
+
+  <!-- Botão Adicionar -->
+  <ion-button expand="block" class="btn-adicionar" (click)="adicionarPlanta()">
+    <ion-icon name="add-outline" slot="start"></ion-icon>
+    Adicionar nova planta
+  </ion-button>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando suas plantas...</p>
+  </div>
+
+  <!-- Lista de plantas -->
+  <div *ngIf="!loading">
+    <div class="result-count" *ngIf="plantasFiltradas.length > 0">
+      <span>{{ plantasFiltradas.length }} planta{{ plantasFiltradas.length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Nenhuma planta -->
+    <div *ngIf="plantasFiltradas.length === 0" class="empty-state">
+      <div class="empty-icon-box">
+        <ion-icon name="leaf-outline"></ion-icon>
+      </div>
+      <h3>Nenhuma planta ainda</h3>
+      <p>Adote uma planta na seção "Explorar Espécies"</p>
+      <ion-button fill="outline" class="btn-empty-action" (click)="adicionarPlanta()">Explorar espécies</ion-button>
+    </div>
+
+    <!-- Grid de plantas -->
+    <div class="plantas-grid">
+      <div *ngFor="let planta of plantasFiltradas" class="planta-card" (click)="abrirPlanta(planta)">
+        <div class="card-image"
+          [style.background]="(planta.imagem || planta.fase?.imagem) ? 'url(' + (planta.imagem || planta.fase?.imagem) + ')' : 'linear-gradient(135deg, #D8F3DC, #B7E4C7)'">
+          <div *ngIf="!planta.imagem && !planta.fase?.imagem" class="card-emoji">🌱</div>
+
+          <button type="button" class="btn-favorito" [class.favoritado]="planta.favorito || planta.isFavorito"
+            (click)="toggleFavorito($event, planta)" aria-label="Favoritar planta">
+            <ion-icon [name]="(planta.favorito || planta.isFavorito) ? 'heart' : 'heart-outline'"></ion-icon>
+          </button>
+
+          <div class="card-status" [style.color]="getStatusColor(planta)">
+            <ion-icon [name]="getStatusIcon(planta)"></ion-icon>
+          </div>
+          <div class="card-fase">
+            <span>{{ planta.faseNome || planta.fase?.nome || 'Fase ' + (planta.faseOrdem || planta.fase?.ordem || 1)
+              }}</span>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <h3>{{ planta.apelido || planta.nome }}</h3>
+          <p class="especie">{{ planta.especieNomePopular || planta.especiePlanta?.nomePopular || 'Espécie' }}</p>
+
+          <div class="card-meta">
+            <!-- XP Dinâmico da Planta -->
+            <div class="xp">
+              <ion-icon name="flash-outline"></ion-icon>
+              <span>{{ (planta.xpAtual !== undefined && planta.xpAtual !== null) ? planta.xpAtual : 0 }} XP</span>
+            </div>
+            <!-- Nível Dinâmico da Planta ou Fase -->
+            <div class="nivel">
+              <ion-icon name="star-outline"></ion-icon>
+              <span>Nv {{ planta.nivel || planta.faseOrdem || planta.fase?.ordem || 1 }}</span>
+            </div>
+            <!-- Felicidade Dinâmica da Planta -->
+            <div class="felicidade" [style.color]="getStatusColor(planta)">
+              <ion-icon name="heart-outline"></ion-icon>
+              <span>{{ (planta.felicidade !== undefined && planta.felicidade !== null) ? planta.felicidade : 100
+                }}%</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="data-criacao">Criada em {{ formatDate(planta.dataCriacao || planta.dataAdocao) }}</span>
+            <ion-icon name="chevron-forward-outline" class="seta"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas atividades (registros recentes) -->
+  <div *ngIf="!loading && ultimosRegistros.length > 0" class="ultimas-atividades">
+    <h4>📋 Últimas atividades</h4>
+    <div *ngFor="let reg of ultimosRegistros" class="atividade-item">
+      <div class="atividade-icon" [style.background]="reg.qualidadeCuidado >= 7 ? '#D8F3DC' : '#FFF3CD'">
+        <ion-icon name="checkmark-circle-outline" *ngIf="reg.qualidadeCuidado >= 7"></ion-icon>
+        <ion-icon name="alert-circle-outline" *ngIf="reg.qualidadeCuidado < 7"></ion-icon>
+      </div>
+      <div class="atividade-content">
+        <p>
+          <strong>{{ reg.plantaApelido || reg.plantaUsuario?.apelido || 'Planta' }}</strong> -
+          Cuidado: 💧{{ reg.aguaPlanta || reg.agua || 0 }} ☀️{{ reg.luz || 0 }} 🌱{{ reg.nutrientes || 0 }}
+          <span *ngIf="reg.observacao || reg.descricao"> - {{ reg.observacao || reg.descricao }}</span>
+        </p>
+        <small>{{ getTempoRelativo(reg.dataRegistro) }}</small>
+      </div>
+      <span class="atividade-xp">+{{ reg.xpRecebido || 0 }} XP</span>
+    </div>
+  </div>
+
+</ion-content>

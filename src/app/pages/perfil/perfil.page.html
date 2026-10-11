@@ -1,0 +1,177 @@
+<!-- src/app/pages/perfil/perfil.page.html -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <ion-title>
+      <span class="page-title"></span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Salvando alterações...</p>
+  </div>
+
+  <div class="avatar-section">
+    <div class="avatar-container" (click)="uploadImagem()">
+      <div *ngIf="imagem" class="avatar-image">
+        <img [src]="imagem" alt="Avatar">
+      </div>
+      <div *ngIf="!imagem" class="avatar-placeholder">
+        <span>{{ nome.charAt(0) || '?' }}</span>
+      </div>
+      <div class="avatar-edit">
+        <ion-icon name="camera-outline"></ion-icon>
+      </div>
+    </div>
+    <h2>{{ nome || 'Usuário' }}</h2>
+    <p class="email">{{ email }}</p>
+    <p class="nivel">Nível {{ nivel }} • {{ xpTotal }} XP</p>
+  </div>
+
+  <div class="action-buttons">
+    <ion-button expand="block" (click)="toggleEdit()" class="btn-edit">
+      <ion-icon slot="start" [name]="isEditing ? 'close-outline' : 'create-outline'"></ion-icon>
+      {{ isEditing ? 'Cancelar Edição' : 'Editar Perfil' }}
+    </ion-button>
+    <ion-button expand="block" (click)="togglePasswordChange()" class="btn-password">
+      <ion-icon slot="start" [name]="isChangingPassword ? 'close-outline' : 'lock-closed-outline'"></ion-icon>
+      {{ isChangingPassword ? 'Cancelar' : 'Alterar Senha' }}
+    </ion-button>
+  </div>
+
+
+
+  <div *ngIf="isEditing" class="edit-section">
+    <div class="section-title">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Dados Pessoais</span>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Nome *</ion-label>
+        <ion-input [(ngModel)]="nome" placeholder="Seu nome"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Email *</ion-label>
+        <ion-input [(ngModel)]="email" type="email" placeholder="seu@email.com"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Bio</ion-label>
+        <ion-textarea [(ngModel)]="bio" placeholder="Fale um pouco sobre você..." rows="3"></ion-textarea>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Data de Nascimento</ion-label>
+        <ion-input [(ngModel)]="dataNascimento" type="date"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">URL da Imagem</ion-label>
+        <ion-input [(ngModel)]="imagem" placeholder="https://exemplo.com/imagem.jpg"></ion-input>
+        <ion-button slot="end" fill="clear" (click)="uploadImagem()">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Notificações</ion-label>
+        <ion-toggle [(ngModel)]="notificacoes" color="success" slot="end"></ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Sons</ion-label>
+        <ion-toggle [(ngModel)]="som" color="success" slot="end"></ion-toggle>
+      </ion-item>
+    </ion-list>
+
+    <ion-button 
+      expand="block" 
+      (click)="atualizarPerfil()" 
+      [disabled]="isLoading" 
+      class="btn-save"
+    >
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Salvar Alterações</span>
+    </ion-button>
+  </div>
+
+  <div *ngIf="isChangingPassword" class="edit-section" style="border: 2px solid #F39C12; padding: 10px; border-radius: 12px; margin-top: 16px;">
+    <div class="section-title">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <span>Alterar Senha</span>
+    </div>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Senha Atual *</ion-label>
+        <ion-input [(ngModel)]="senhaAtual" type="password" placeholder="Digite sua senha atual"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Nova Senha *</ion-label>
+        <ion-input [(ngModel)]="novaSenha" type="password" placeholder="Nova senha (mínimo 6 caracteres)"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Confirmar Nova Senha *</ion-label>
+        <ion-input [(ngModel)]="confirmarSenha" type="password" placeholder="Confirme a nova senha"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" (click)="alterarSenha()" [disabled]="isLoading" class="btn-save" style="--background: #F39C12;">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Alterar Senha</span>
+    </ion-button>
+  </div>
+
+  <div *ngIf="!isEditing && !isChangingPassword" class="info-section">
+    <div class="info-card">
+      <div class="info-item">
+        <span class="info-label">Nome</span>
+        <span class="info-value">{{ nome || 'Não definido' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ email || 'Não definido' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Bio</span>
+        <span class="info-value">{{ bio || 'Sem bio' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Data de Nascimento</span>
+        <span class="info-value">{{ dataNascimento ? (dataNascimento | date:'dd/MM/yyyy') : 'Não definido' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Notificações</span>
+        <span class="info-value">{{ notificacoes ? 'Ativas' : 'Desativadas' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Sons</span>
+        <span class="info-value">{{ som ? 'Ativos' : 'Desativados' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Nível</span>
+        <span class="info-value">Nível {{ nivel }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">XP Total</span>
+        <span class="info-value">{{ xpTotal }} XP</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Dias Consecutivos</span>
+        <span class="info-value">{{ sequenciaDias }} dias</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Pontos Totais</span>
+        <span class="info-value">{{ pontuacaoTotal }} pontos</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

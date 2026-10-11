@@ -1,0 +1,604 @@
+// ============================
+// VARIÁVEIS
+// ============================
+$primary-green: #3C8B66;
+$primary-green-light: #edf9f1;
+$primary-green-border: #cfe7d5;
+$primary-green-dark: #25523d;
+$text-dark: #2C3E50;
+$text-gray: #7F8C8D;
+$bg-light: #F5F7FA;
+$bg-white: #FFFFFF;
+
+// ============================
+// GLOBAL
+// ============================
+ion-content {
+  --background: $bg-light;
+  --padding-bottom: 30px;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding-top: 4px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: $text-dark;
+  letter-spacing: -0.5px;
+}
+
+// ============================
+// HEADER
+// ============================
+.header-section {
+  margin-bottom: 20px;
+  
+  .main-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: $text-gray;
+    margin: 0;
+    font-weight: 400;
+  }
+}
+
+// ============================
+// STATUS CARD
+// ============================
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: $primary-green-light;
+  border: 1px solid $primary-green-border;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+
+  .status-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #d8f2df;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      color: $primary-green;
+      font-size: 20px;
+    }
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: $primary-green-dark;
+  }
+
+  p {
+    margin-top: 4px;
+    margin-bottom: 0;
+    color: #5d7c6b;
+    font-size: 12px;
+  }
+}
+
+// ============================
+// ROLE CARDS
+// ============================
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 20px 0;
+}
+
+.role-card {
+  height: 74px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: 0.25s;
+  border: 1px solid #d6e8dc;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  // ===== CARD VERDE (PROFESSOR) =====
+  &.professor {
+    background: $primary-green;
+    border: none;
+
+    h3 {
+      color: white;
+    }
+
+    p {
+      color: #d7f5e5;
+    }
+
+    .card-icon {
+      color: white;
+    }
+  }
+
+  // ===== CARD BRANCO (ALUNO) =====
+  &.aluno {
+    background: white;
+
+    h3 {
+      color: $primary-green-dark;
+    }
+
+    p {
+      color: #6c8b78;
+    }
+
+    .card-icon {
+      color: $primary-green;
+    }
+  }
+}
+
+.card-icon {
+  font-size: 23px;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.role-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  p {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+// ============================
+// DIVIDER
+// ============================
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 20px 0;
+  
+  span {
+    font-size: 11px;
+    color: $text-gray;
+    background: $bg-light;
+    padding: 0 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #E8ECF0, transparent);
+  }
+}
+
+// ============================
+// SEARCH
+// ============================
+.search-container {
+  margin-bottom: 20px;
+  
+  .custom-search {
+    --background: $bg-white;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --border-radius: 14px;
+    --placeholder-color: $text-gray;
+    --placeholder-opacity: 0.6;
+    --icon-color: $text-gray;
+    padding: 0;
+    
+    ::ng-deep {
+      .searchbar-input-container {
+        .searchbar-input {
+          padding-left: 48px !important;
+          font-size: 15px;
+          height: 48px;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+}
+
+// ============================
+// LOADING
+// ============================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+    color: $primary-green;
+  }
+  
+  p {
+    margin-top: 16px;
+    color: $text-gray;
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
+// ============================
+// STATUS DE VÍNCULO
+// ============================
+.turma-status {
+  margin: 8px 0 12px 0;
+  
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    
+    &.professor {
+      background: #D4EDDA;
+      color: #155724;
+      border: 1px solid #C3E6CB;
+    }
+    
+    &.vinculado {
+      background: #D8F3DC;
+      color: #2D6A4F;
+    }
+    
+    &.disponivel {
+      background: #FFF3CD;
+      color: #856404;
+    }
+  }
+}
+// ============================
+// TURMAS HEADER
+// ============================
+.turmas-header {
+  margin-bottom: 16px;
+  
+  .turmas-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+}
+
+// ============================
+// EMPTY STATE
+// ============================
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: #D5D8DC;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: $text-dark;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $text-gray;
+    margin: 0;
+  }
+}
+
+// ============================
+// TURMAS GRID
+// ============================
+.turmas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ============================
+// TURMA CARD
+// ============================
+.turma-card {
+  background: $bg-white;
+  border-radius: 16px;
+  padding: 20px 22px 18px 22px;
+  border-left: 5px solid $primary-green;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+    transform: translateY(-2px);
+  }
+  
+  .turma-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    
+    .turma-info {
+      flex: 1;
+      cursor: pointer;
+      
+      .turma-nome {
+        font-size: 17px;
+        font-weight: 700;
+        color: $text-dark;
+        margin: 0 0 4px 0;
+        line-height: 1.3;
+        letter-spacing: -0.3px;
+      }
+      
+      .turma-professor {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: $text-gray;
+        margin: 0;
+        
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .turma-badge {
+      .badge-professor {
+        background: $primary-green-light;
+        color: $primary-green;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 14px;
+        border-radius: 20px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+      }
+    }
+  }
+  
+  .turma-progresso {
+    margin-bottom: 14px;
+    cursor: pointer;
+    
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      
+      span {
+        font-size: 13px;
+        color: $text-gray;
+        font-weight: 500;
+        
+        &.progress-percent {
+          font-weight: 700;
+          color: $text-dark;
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: #ECF0F1;
+      border-radius: 4px;
+      overflow: hidden;
+      
+      .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+  }
+  
+  .turma-next {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: #F8FAFC;
+    border-radius: 10px;
+    border-left: 3px solid $primary-green;
+    
+    .next-icon {
+      font-size: 18px;
+      color: $primary-green;
+      flex-shrink: 0;
+    }
+    
+    .next-text {
+      font-size: 13px;
+      color: $text-dark;
+      font-weight: 500;
+    }
+  }
+  
+  .turma-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1.5px solid #F0F2F4;
+    
+    .turma-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      
+      .tag {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        color: $text-gray;
+        background: #F0F2F4;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+        
+        ion-icon {
+          font-size: 13px;
+        }
+      }
+    }
+    
+    .turma-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      
+      ion-button {
+        --padding-start: 8px;
+        --padding-end: 8px;
+        margin: 0;
+        height: 34px;
+      }
+      
+      .action-text {
+        font-size: 13px;
+        color: $primary-green;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      
+      .action-icon {
+        font-size: 22px;
+        color: $primary-green;
+        transition: transform 0.25s ease;
+      }
+      
+      ion-button:hover .action-icon {
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
+// ============================
+// RESPONSIVO
+// ============================
+@media (max-width: 420px) {
+  .role-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .role-card {
+    height: 64px;
+    padding: 0 16px;
+    
+    .card-icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+    
+    .role-content {
+      h3 {
+        font-size: 15px;
+      }
+      
+      p {
+        font-size: 11px;
+        margin-top: 3px;
+      }
+    }
+  }
+  
+  .status-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 14px;
+    
+    .status-icon {
+      width: 44px;
+      height: 44px;
+      
+      ion-icon {
+        font-size: 22px;
+      }
+    }
+  }
+  
+  .turma-card {
+    padding: 16px 16px 14px 16px;
+    
+    .turma-header {
+      .turma-info {
+        .turma-nome {
+          font-size: 16px;
+        }
+      }
+    }
+    
+    .turma-footer {
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      
+      .turma-tags {
+        justify-content: center;
+      }
+      
+      .turma-actions {
+        justify-content: center;
+      }
+    }
+  }
+}

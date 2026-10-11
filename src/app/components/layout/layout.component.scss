@@ -1,0 +1,17 @@
+// src/app/components/layout/layout.component.scss
+ion-split-pane {
+  --side-width: 280px;
+  --side-max-width: 280px;
+}
+
+ion-menu {
+  --width: 280px;
+  --min-width: 280px;
+  --max-width: 280px;
+}
+
+.main-content {
+  flex: 1;
+  min-height: 100vh;
+  background: #F8FDF9;
+}

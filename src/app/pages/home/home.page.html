@@ -1,0 +1,115 @@
+<!-- src/app/pages/home/home.page.html -->
+<ion-content class="ion-padding" [fullscreen]="true">
+  <div class="home-container">
+
+    <!-- Header: Saudação -->
+    <div class="header">
+      <div class="greeting">
+        <p class="greeting-text">{{ saudacao }}! </p>
+        <h1 class="user-name">{{ nomeUsuario }}</h1>
+      </div>
+      <div class="notification-btn" (click)="mostrarNotificacoes()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notification-dot"></span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <ion-icon name="flame-outline" class="stat-icon" style="color: #FF6B35;"></ion-icon>
+        <span class="stat-value">{{ streakDias }}</span>
+        <span class="stat-label">dias streak</span>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="flash-outline" class="stat-icon" style="color: #2D6A4F;"></ion-icon>
+        <span class="stat-value">{{ xpTotal }}</span>
+        <span class="stat-label">XP total</span>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="star-outline" class="stat-icon" style="color: #F4A261;"></ion-icon>
+        <span class="stat-value">Nv {{ nivel }}</span>
+        <span class="stat-label">seu nível</span>
+      </div>
+    </div>
+
+    <!-- Barra de XP -->
+    <div class="xp-card">
+      <div class="xp-header">
+        <div class="xp-label">
+          <div class="xp-icon">
+            <ion-icon name="flash-outline"></ion-icon>
+          </div>
+          <span class="xp-level">Nível {{ nivel }}</span>
+        </div>
+        <span class="xp-progress-text">{{ xpAtualNivel }}/{{ xpProximoNivel }} XP</span>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-bar-fill" [style.width.%]="progressoXP">
+          <div class="xp-bar-shimmer"></div>
+        </div>
+      </div>
+      <p class="xp-remaining">{{ getXpFaltando() }} XP para o próximo nível</p>
+    </div>
+
+    <!-- Acesso Rápido -->
+    <div class="quick-actions">
+      <h3 class="section-title">Acesso rápido</h3>
+      <div class="actions-grid">
+        <div class="action-btn" (click)="navegarPara('turmas')">
+          <ion-icon name="book-outline"></ion-icon>
+          <span>Aulas</span>
+        </div>
+        <div class="action-btn" (click)="navegarPara('minhas-plantas')">
+          <ion-icon name="trophy-outline"></ion-icon>
+          <span>Plantas</span>
+        </div>
+        <div class="action-btn" (click)="mostrarNotificacoes()">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>Alertas</span>
+        </div>
+        <div class="action-btn" (click)="navegarPara('relatorios')">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          <span>Relatório</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Atividades Recentes -->
+    <div class="recent-activities">
+      <div class="section-header">
+        <h3 class="section-title">Atividade recente</h3>
+        <span class="ver-tudo" (click)="navegarPara('atividades')">Ver tudo</span>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="carregando" class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Carregando atividades...</p>
+      </div>
+
+      <!-- Sem atividades -->
+      <div *ngIf="!carregando && atividadesRecentes.length === 0" class="empty-state">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <p>Nenhuma atividade recente</p>
+        <span>Participe de turmas para ver atividades aqui</span>
+      </div>
+
+      <!-- Lista de atividades -->
+      <div *ngFor="let atividade of atividadesRecentes" class="activity-item">
+        <div class="activity-icon" [style.backgroundColor]="getCorAtividade(atividade.titulo)">
+          {{ getIconeAtividade(atividade.titulo) }}
+        </div>
+        <div class="activity-content">
+          <p class="activity-text">{{ atividade.titulo }}</p>
+          <p class="activity-time">{{ getTempoRelativo(atividade.dataCriacao) }}</p>
+          <span class="activity-turma" *ngIf="atividade.turmaNome">
+            {{ atividade.turmaNome }}
+          </span>
+        </div>
+        <span class="activity-xp">+{{ atividade.xp }} XP</span>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

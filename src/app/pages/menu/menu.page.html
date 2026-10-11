@@ -1,0 +1,95 @@
+<!-- src/app/pages/menu/menu.page.html -->
+<ion-content>
+  <div class="sidebar">
+
+    <!-- LOGO -->
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <div>
+        <h1>Grow</h1>
+      </div>
+    </div>
+
+    <!-- MENU PRINCIPAL -->
+    <div class="menu-section">
+      <span class="section-title">MENU PRINCIPAL</span>
+      <ion-item lines="none" routerLink="/home">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Início</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/minhas-plantas">
+        <ion-icon name="leaf-outline" slot="start"></ion-icon>
+        <ion-label>Minha Planta</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- ESPÉCIES & PLANTAS -->
+    <div class="menu-section">
+      <span class="section-title">ESPÉCIES & PLANTAS</span>
+      <ion-item lines="none" routerLink="/explorar-especies">
+        <ion-icon name="flower-outline" slot="start"></ion-icon>
+        <ion-label>Explorar Espécies</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/cadastrar-especie">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        <ion-label>Cadastrar Espécie</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- EDUCAÇÃO -->
+    <div class="menu-section">
+      <span class="section-title">EDUCAÇÃO</span>
+      <ion-item lines="none" routerLink="/turmas">
+        <ion-icon name="people-outline" slot="start"></ion-icon>
+        <ion-label>Turmas</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/atividades">
+        <ion-icon name="clipboard-outline" slot="start"></ion-icon>
+        <ion-label>Minhas Atividades</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/relatorios">
+        <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+        <ion-label>Relatórios</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- OUTROS -->
+    <div class="menu-section">
+      <span class="section-title">OUTROS</span>
+      <ion-item lines="none" routerLink="/notificacoes">
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        <ion-label>Notificações</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/compartilhar">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        <ion-label>Compartilhar</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/perfil">
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label>Perfil</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- MEUS PAPÉIS -->
+    <div class="menu-section">
+      <span class="section-title">MEUS PAPÉIS</span>
+      <ion-item lines="none" routerLink="/painel-responsavel">
+        <ion-icon name="people-circle-outline" slot="start"></ion-icon>
+        <ion-label>Painel Responsável</ion-label>
+      </ion-item>
+      <ion-item lines="none" routerLink="/painel-professor">
+        <ion-icon name="school-outline" slot="start"></ion-icon>
+        <ion-label>Painel Professor</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="logout">
+      <ion-item button (click)="logout()" lines="none">
+        <ion-icon name="log-out-outline" color="danger" slot="start"></ion-icon>
+        <ion-label color="danger">Sair</ion-label>
+      </ion-item>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,159 @@
+// src/app/pages/menu/menu.page.scss
+ion-content {
+  --background: #f4f7f3;
+}
+
+.sidebar {
+  padding: 22px 16px 30px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== LOGO ========== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #123524;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: #7a9485;
+  }
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2D6A4F, #52B788);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  box-shadow: 0 8px 18px rgba(45, 106, 79, 0.18);
+}
+
+/* ========== PERFIL DO USUÁRIO ========== */
+.profile-card {
+  background: linear-gradient(135deg, #e9f5ea, #f5fbf6);
+  border-radius: 22px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #123524;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 0.82rem;
+    color: #7a9485;
+  }
+}
+
+/* AVATAR COM SUPORTE PARA IMAGEM */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #52B788, #40916C);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #52B788, #40916C);
+  }
+}
+
+/* ========== MENU ========== */
+.menu-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  display: block;
+  margin-bottom: 12px;
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #9ab6a1;
+}
+
+ion-item {
+  --background: transparent;
+  --padding-start: 14px;
+  --inner-padding-end: 12px;
+  --min-height: 52px;
+  border-radius: 16px;
+  margin-bottom: 6px;
+  transition: 0.25s ease;
+  color: #234032;
+  font-size: 0.96rem;
+  font-weight: 500;
+}
+
+ion-item ion-icon {
+  font-size: 1.2rem;
+  color: #2D6A4F;
+  margin-right: 10px;
+}
+
+ion-item:hover {
+  --background: #dff2e2;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.08);
+}
+
+/* ========== LOGOUT ========== */
+.logout {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 106, 79, 0.25);
+  border-radius: 99px;
+}

@@ -1,0 +1,157 @@
+<!-- src/app/pages/cuidados-planta/cuidados-planta.page.html -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/minhas-plantas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Cuidar da Planta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando dados da planta...</p>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div *ngIf="!loading && planta && fase">
+
+    <!-- Cabeçalho da planta -->
+    <div class="planta-header">
+      <div class="planta-imagem" [style.backgroundImage]="planta.imagem ? 'url(' + planta.imagem + ')' : 'linear-gradient(135deg, #D8F3DC, #B7E4C7)'">
+        <div *ngIf="!planta.imagem" class="planta-emoji">🌱</div>
+      </div>
+      <div class="planta-info">
+        <h2>{{ planta.apelido }}</h2>
+        <p class="especie">{{ planta.especieNomePopular || 'Espécie' }}</p>
+        <div class="fase-badge">{{ fase.nome || 'Fase ' + planta.faseId }}</div>
+      </div>
+    </div>
+
+    <!-- Status da planta -->
+    <div class="status-section">
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="heart-outline" [style.color]="getStatusColor(planta)"></ion-icon>
+          <span>Felicidade</span>
+          <span class="status-value">{{ planta.felicidade }}%</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="planta.felicidade" [style.background]="getStatusColor(planta)"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="fitness-outline" [style.color]="getStatusColor(planta)"></ion-icon>
+          <span>Saúde</span>
+          <span class="status-value">{{ planta.saude }}%</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="planta.saude" [style.background]="getStatusColor(planta)"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <ion-icon name="flash-outline" style="color: #2D6A4F;"></ion-icon>
+          <span>XP</span>
+          <span class="status-value">{{ getXpTexto() }}</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar-fill" [style.width.%]="getProgressoXP()" style="background: linear-gradient(90deg, #2D6A4F, #52B788);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicador de saúde geral -->
+    <div class="saude-indicador" [style.color]="getSaudeColor(planta)" [style.borderColor]="getSaudeColor(planta)">
+      <ion-icon [name]="getStatusIcon(planta)"></ion-icon>
+      <span>Saúde: {{ getSaudeLabel(planta) }}</span>
+    </div>
+
+    <!-- Controles de cuidado -->
+    <div class="cuidados-section">
+      <h3>Cuidados</h3>
+
+      <!-- Água -->
+      <div class="slider-item">
+        <div class="slider-header">
+          <ion-icon name="water-outline" style="color: #4A9FCA;"></ion-icon>
+          <span>Água</span>
+          <span class="slider-value">{{ agua }}%</span>
+          <span class="ideal-value">Ideal: {{ aguaIdeal }}%</span>
+        </div>
+        <ion-range [(ngModel)]="agua" min="0" max="100" step="1" color="tertiary"></ion-range>
+      </div>
+
+      <!-- Luz -->
+      <div class="slider-item">
+        <div class="slider-header">
+          <ion-icon name="sunny-outline" style="color: #F5A623;"></ion-icon>
+          <span>Luz</span>
+          <span class="slider-value">{{ luz }}%</span>
+          <span class="ideal-value">Ideal: {{ luzIdeal }}%</span>
+        </div>
+        <ion-range [(ngModel)]="luz" min="0" max="100" step="1" color="warning"></ion-range>
+      </div>
+
+      <!-- Nutrientes -->
+      <div class="slider-item">
+        <div class="slider-header">
+          <ion-icon name="leaf-outline" style="color: #2D6A4F;"></ion-icon>
+          <span>Nutrientes</span>
+          <span class="slider-value">{{ nutrientes }}%</span>
+          <span class="ideal-value">Ideal: {{ nutrientesIdeal }}%</span>
+        </div>
+        <ion-range [(ngModel)]="nutrientes" min="0" max="100" step="1" color="success"></ion-range>
+      </div>
+
+      <!-- Botão Cuidar -->
+      <ion-button expand="block" class="btn-cuidar" (click)="cuidar()" [disabled]="cuidando">
+        <ion-spinner *ngIf="cuidando" name="crescent"></ion-spinner>
+        <span *ngIf="!cuidando">
+          <ion-icon name="leaf-outline" slot="start"></ion-icon>
+          Cuidar da Planta
+        </span>
+      </ion-button>
+    </div>
+
+    <!-- Feedback após cuidado -->
+    <div *ngIf="feedback" class="feedback-section" [class.evoluiu]="feedback.evoluiu">
+      <p class="feedback-mensagem">{{ feedback.mensagem }}</p>
+      <div class="feedback-xp">
+        <span *ngIf="feedback.xpPlanta > 0">🌱 Planta: +{{ feedback.xpPlanta }} XP</span>
+        <span *ngIf="feedback.xpUsuario > 0">👤 Você: +{{ feedback.xpUsuario }} XP</span>
+      </div>
+    </div>
+
+    <!-- Histórico de cuidados -->
+    <div class="historico-section">
+      <h4>📋 Últimos cuidados</h4>
+      <div *ngIf="carregandoHistorico" class="loading-small">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+      <div *ngIf="!carregandoHistorico && historico.length === 0" class="empty-historico">
+        <p>Nenhum cuidado registrado ainda.</p>
+      </div>
+      <div *ngFor="let reg of historico" class="historico-item">
+        <div class="historico-data">
+          <span class="data">{{ getTempoRelativo(reg.dataRegistro) }}</span>
+          <span class="xp">+{{ reg.xpRecebido }} XP</span>
+        </div>
+        <div class="historico-valores">
+          <span>💧{{ reg.aguaPlanta }}%</span>
+          <span>☀️{{ reg.luz }}%</span>
+          <span>🌱{{ reg.nutrientes }}%</span>
+          <span class="qualidade" [style.color]="reg.qualidadeCuidado >= 7 ? '#2D6A4F' : '#F5A623'">
+            Qualidade: {{ reg.qualidadeCuidado }}/10
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ion-content>

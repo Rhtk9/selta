@@ -1,0 +1,149 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-menu-button color="dark"></ion-menu-button>
+      <ion-back-button *ngIf="turmaId" (click)="voltar()" text="Voltar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <span class="page-title">{{ turma ? turma.nome : 'Atividades' }}</span>
+    </ion-title>
+    
+    <ion-buttons slot="end" *ngIf="turmaId && isProfessor">
+      <ion-button (click)="abrirCriarAtividade()" color="primary">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <ion-button 
+    *ngIf="turmaId && isProfessor" 
+    expand="block" 
+    color="danger" 
+    (click)="excluirTurma()" 
+    style="margin-bottom: 16px;"
+  >
+    <ion-icon slot="start" name="trash-outline"></ion-icon>
+    EXCLUIR TURMA
+  </ion-button>
+
+  <ion-button 
+    *ngIf="turmaId && !isProfessor && vinculoId" 
+    expand="block" 
+    color="medium" 
+    (click)="sairTurma()" 
+    style="margin-bottom: 16px;"
+    [disabled]="possuiAtividadesPendentes"
+  >
+    <ion-icon slot="start" name="exit-outline"></ion-icon>
+    SAIR DA TURMA
+    <span *ngIf="possuiAtividadesPendentes"> (atividades pendentes)</span>
+  </ion-button>
+
+  <div class="header-section" *ngIf="turma">
+    <h1 class="main-title">{{ turma.nome }}</h1>
+    <p class="subtitle">Atividades da turma</p>
+  </div>
+
+  <div class="filtros-container">
+    <ion-segment [(ngModel)]="filtro" (ionChange)="aplicarFiltro($event)" mode="ios">
+      <ion-segment-button value="todas">
+        <ion-label>Todas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="futuras">
+        <ion-label>Futuras</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="passadas">
+        <ion-label>Passadas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando atividades...</p>
+  </div>
+
+  <div *ngIf="!isLoading && atividades.length === 0" class="empty-state">
+    <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
+    <h3>Nenhuma atividade encontrada</h3>
+    <p *ngIf="turmaId && isProfessor">Clique no ícone <ion-icon name="add-circle-outline"></ion-icon> para criar uma nova atividade</p>
+    <p *ngIf="!turmaId">Você não está vinculado a nenhuma atividade</p>
+  </div>
+
+  <div *ngIf="!isLoading && atividades.length > 0">
+    <div class="atividades-grid">
+      <div 
+        *ngFor="let atividade of atividades" 
+        class="atividade-card"
+        [class.urgente]="getStatusEntrega(atividade.dataEntrega) === 'urgente'"
+        [class.concluido]="getStatusEntrega(atividade.dataEntrega) === 'concluido'"
+        (click)="verDetalhes(atividade)"
+      >
+        <div class="atividade-header">
+          <div class="atividade-info">
+            <h3 class="atividade-titulo">{{ atividade.titulo }}</h3>
+            <p class="atividade-descricao">{{ atividade.descricao | slice:0:80 }}{{ atividade.descricao.length > 80 ? '...' : '' }}</p>
+          </div>
+          <ion-icon 
+            [name]="getStatusIcon(atividade.status)"
+            [color]="getStatusColor(atividade.status)"
+            class="status-icon"
+          ></ion-icon>
+        </div>
+
+        <div class="atividade-meta">
+          <div class="meta-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ atividade.dataEntrega | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="star-outline"></ion-icon>
+            <span>{{ atividade.pontuacao }} pts</span>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="flask-outline"></ion-icon>
+            <span>{{ atividade.xp }} XP</span>
+          </div>
+          <div class="meta-item">
+            <ion-badge [color]="getStatusColor(atividade.status)" mode="ios">
+              {{ atividade.status }}
+            </ion-badge>
+          </div>
+        </div>
+
+        <div class="atividade-footer" *ngIf="atividade.totalAlunos">
+          <div class="progress-info">
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="(atividade.alunosConcluidos || 0) / (atividade.totalAlunos || 1) * 100"
+              ></div>
+            </div>
+            <span class="progress-text">
+              {{ atividade.alunosConcluidos || 0 }}/{{ atividade.totalAlunos }} concluídos
+            </span>
+          </div>
+          <div class="dias-restantes">
+            <span *ngIf="getStatusEntrega(atividade.dataEntrega) === 'urgente'" class="urgente-badge">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              {{ getDiasRestantes(atividade.dataEntrega) }} dias
+            </span>
+            <span *ngIf="getStatusEntrega(atividade.dataEntrega) === 'pendente'" class="pendente-badge">
+              <ion-icon name="time-outline"></ion-icon>
+              {{ getDiasRestantes(atividade.dataEntrega) }} dias
+            </span>
+            <ion-icon 
+              *ngIf="getStatusEntrega(atividade.dataEntrega) === 'concluido'"
+              name="checkmark-circle"
+              color="success"
+              size="large"
+            ></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

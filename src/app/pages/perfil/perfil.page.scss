@@ -1,0 +1,328 @@
+// src/app/pages/perfil/perfil.page.scss
+
+$primary-green: #3C8B66;
+$text-dark: #2C3E50;
+$text-gray: #7F8C8D;
+$bg-light: #F5F7FA;
+$bg-white: #FFFFFF;
+
+ion-content {
+  --background: $bg-light;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding-top: 4px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $text-dark;
+  letter-spacing: -0.5px;
+}
+
+// ============================
+// LOADING
+// ============================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+    color: $primary-green;
+  }
+  
+  p {
+    margin-top: 12px;
+    color: $text-gray;
+    font-size: 14px;
+  }
+}
+
+// ============================
+// AVATAR
+// ============================
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  .avatar-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-bottom: 12px;
+    
+    &:hover .avatar-edit {
+      opacity: 1;
+    }
+    
+    .avatar-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid $primary-green;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: $primary-green;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid $primary-green;
+      
+      span {
+        font-size: 40px;
+        font-weight: 700;
+        color: white;
+      }
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: $primary-green;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+      
+      ion-icon {
+        color: white;
+        font-size: 16px;
+      }
+    }
+  }
+  
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+  }
+  
+  .email {
+    font-size: 14px;
+    color: $text-gray;
+    margin: 4px 0 0 0;
+  }
+  
+  .nivel {
+    font-size: 13px;
+    color: $primary-green;
+    font-weight: 600;
+    margin: 4px 0 0 0;
+    background: #E8F8F5;
+    padding: 4px 16px;
+    border-radius: 20px;
+  }
+}
+
+// ============================
+// ACTION BUTTONS
+// ============================
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  
+  .btn-edit {
+    --border-color: $primary-green;
+    --color: $primary-green;
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-weight: 600;
+  }
+  
+  .btn-password {
+    --border-color: #F39C12;
+    --color: #F39C12;
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-weight: 600;
+  }
+}
+
+// ============================
+// EDIT SECTION
+// ============================
+.edit-section {
+  background: $bg-white;
+  border-radius: 16px;
+  padding: 16px 0 20px 0;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px 12px 16px;
+    border-bottom: 1px solid #F0F2F4;
+    
+    ion-icon {
+      font-size: 20px;
+      color: $primary-green;
+    }
+    
+    span {
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+  
+  ion-list {
+    background: transparent;
+    padding: 8px 0;
+  }
+  
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-end: 8px;
+    --background: transparent;
+    
+    ion-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-gray;
+    }
+    
+    ion-input, ion-textarea {
+      --padding-start: 0;
+      --padding-top: 8px;
+      --padding-bottom: 8px;
+      font-size: 15px;
+      color: $text-dark;
+    }
+    
+    ion-toggle {
+      --handle-background: #D5D8DC;
+      --handle-background-checked: $primary-green;
+      --background-checked: #A8D5BA;
+    }
+  }
+  
+  .btn-save {
+    --background: $primary-green;
+    --border-radius: 12px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    margin: 8px 16px 0 16px;
+    font-weight: 600;
+    font-size: 16px;
+    --box-shadow: 0 4px 14px rgba(60, 139, 102, 0.3);
+    
+    &:disabled {
+      --background: #D5D8DC;
+      --box-shadow: none;
+    }
+  }
+}
+
+// ============================
+// INFO SECTION
+// ============================
+.info-section {
+  .info-card {
+    background: $bg-white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #F0F2F4;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .info-label {
+        font-size: 14px;
+        color: $text-gray;
+        font-weight: 500;
+      }
+      
+      .info-value {
+        font-size: 14px;
+        color: $text-dark;
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+// ============================
+// RESPONSIVO
+// ============================
+@media (max-width: 420px) {
+  .avatar-section {
+    .avatar-container {
+      width: 80px;
+      height: 80px;
+      
+      .avatar-placeholder span {
+        font-size: 32px;
+      }
+      
+      .avatar-edit {
+        width: 28px;
+        height: 28px;
+        
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    h2 {
+      font-size: 20px;
+    }
+  }
+  
+  .info-section .info-card .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    
+    .info-value {
+      text-align: left;
+      max-width: 100%;
+    }
+  }
+}
